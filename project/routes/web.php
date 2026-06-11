@@ -26,6 +26,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     Route::get('prescriptions/{prescription}/pdf', [PrescriptionController::class, 'downloadPdf'])->name('prescriptions.pdf');
     Route::get('prescriptions/{prescription}/pdf/view', [PrescriptionController::class, 'viewPdf'])->name('prescriptions.viewPdf');
+    Route::get('prescriptions/{prescription}/billing-pdf', [PrescriptionController::class, 'downloadBillingPdf'])->name('prescriptions.billingPdf');
+    Route::get('prescriptions/{prescription}/billing-pdf/view', [PrescriptionController::class, 'viewBillingPdf'])->name('prescriptions.viewBillingPdf');
     Route::resource('prescriptions', PrescriptionController::class);
     Route::get('revenues', [App\Http\Controllers\RevenueController::class, 'index'])->name('revenues.index');
     

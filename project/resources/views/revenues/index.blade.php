@@ -1,12 +1,12 @@
 @extends('layouts.dashboard')
-@section('title', 'Daily Revenue Tracking')
+@section('title', 'Billing')
 @section('content')
 
 <div class="row mb-4">
     <div class="col-md-3">
         <div class="card bg-primary text-white shadow-sm">
             <div class="card-body">
-                <h6 class="card-title"><i class="fas fa-money-bill-wave"></i> Total Revenue</h6>
+                <h6 class="card-title"><i class="fas fa-money-bill-wave"></i> Total Billed</h6>
                 <h3 class="mb-0" id="cardTotalRevenue">₹0.00</h3>
             </div>
         </div>

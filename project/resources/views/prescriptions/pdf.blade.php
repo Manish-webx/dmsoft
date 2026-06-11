@@ -229,18 +229,21 @@
 
             <table class="doctor-info-table">
                 <tr>
-                    <td width="50%" style="vertical-align: top; text-align: left;">
-                        <div class="logo-section">
-                            <img src="{{ public_path('assets/image/logo1.png') }}" style="width:150px">
-                        </div>
-                    </td>
-                    <td width="50%" style="vertical-align: top; text-align: right;">
+                    <td width="33%" style="vertical-align: top; text-align: left;">
                         <div class="doc-name">Dr. Pooja Varshney</div>
                         <div class="doc-title">MBBS, MD (SKIN & VD)</div>
                         <div class="doc-title">Consultant Dermatologist</div>
                         <div class="doc-details">Reg. No. DMC/R/72362</div>
                         <div class="doc-details">Member of Indian Association of Dermatologists,<br>Venereologists and
                             Leprosy(IADVL)</div>
+                    </td>
+                    <td width="34%" style="vertical-align: top; text-align: center;">
+                        <div class="logo-section">
+                            <img src="{{ public_path('assets/image/logo1.png') }}" style="width:150px">
+                        </div>
+                    </td>
+                    <td width="33%" style="vertical-align: top; text-align: right;">
+                        <!-- Blank right side -->
                     </td>
                 </tr>
             </table>
@@ -347,37 +350,7 @@
             </tbody>
         </table>
 
-        @if($prescription->revenue)
-            <div style="margin-top: 20px; border: 1px solid #ddd; padding: 15px; background-color: #fdfdfd;">
-                <span class="label" style="font-size: 14px;">Revenue Summary:</span>
-                <table class="revenue-table">
-                    <tr>
-                        <td width="50%">Subtotal:</td>
-                        <td width="50%">₹{{ $prescription->revenue->subtotal }}</td>
-                    </tr>
-                    <tr>
-                        <td>Discount:</td>
-                        <td>₹{{ $prescription->revenue->discount_value }}
-                            ({{ ucfirst($prescription->revenue->discount_type) }})</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Final Amount:</strong></td>
-                        <td><strong>₹{{ $prescription->revenue->final_amount }}</strong>
-                            ({{ $prescription->revenue->payment_mode }})</td>
-                    </tr>
-                    @if($prescription->revenue->due_amount > 0)
-                        <tr>
-                            <td>Received:</td>
-                            <td>₹{{ $prescription->revenue->received_amount }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong style="color:red;">Due Amount:</strong></td>
-                            <td><strong style="color:red;">₹{{ $prescription->revenue->due_amount }}</strong></td>
-                        </tr>
-                    @endif
-                </table>
-            </div>
-        @endif
+
         </div>
 
     </main>

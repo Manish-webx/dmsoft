@@ -17,7 +17,8 @@
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Gender</th>
-                        <th>Age/DOB</th>
+                        <th>Age</th>
+                        <th>Source</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -55,8 +56,20 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label>Date of Birth</label>
-                            <input type="date" name="dob" id="dob" class="form-control">
+                            <label>Age</label>
+                            <input type="text" name="dob" id="dob" class="form-control" placeholder="e.g. 25">
+                        </div>
+                        <div class="mb-3">
+                            <label>Source (Where did you hear about us?)</label>
+                            <select name="source" id="source" class="form-select select2-source" style="width: 100%;">
+                                <option value="">Select...</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="Google">Google</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Youtube">Youtube</option>
+                                <option value="LinkedIn">LinkedIn</option>
+                            </select>
+                            <small class="text-muted">Select from list or type a custom option</small>
                         </div>
                         <div class="mb-3">
                             <label>Address</label>
@@ -82,6 +95,12 @@
     <script>
         let table;
         $(document).ready(function () {
+            $('.select2-source').select2({
+                theme: 'bootstrap-5',
+                tags: true,
+                dropdownParent: $('#patientModal')
+            });
+
             table = $('#patientsTable').DataTable({
                 processing: true,
                 serverSide: false,
@@ -91,13 +110,11 @@
                     { data: 'name' },
                     { data: 'phone' },
                     { data: 'gender' },
+                    { data: 'dob' },
                     { 
-                        data: 'dob',
-                        render: function (data) {
-                            if (!data) return '';
-                            let d = new Date(data);
-                            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-                            return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+                        data: 'source',
+                        render: function(data) {
+                            return data ? `<span class="badge bg-secondary">${data}</span>` : '<span class="text-muted">-</span>';
                         }
                     },
                     {
@@ -140,6 +157,7 @@
         function openModal() {
             $('#patientForm')[0].reset();
             $('#patient_id').val('');
+            $('#source').val('').trigger('change');
             $('#modalTitle').text('Add Patient');
             $('#patientModal').modal('show');
         }
@@ -151,6 +169,14 @@
                 $('#phone').val(data.phone);
                 $('#gender').val(data.gender);
                 $('#dob').val(data.dob);
+                
+                // For select2, if the value doesn't exist, we might need to add it before selecting
+                if(data.source && $('#source').find("option[value='" + data.source + "']").length == 0) {
+                    var newOption = new Option(data.source, data.source, true, true);
+                    $('#source').append(newOption);
+                }
+                $('#source').val(data.source).trigger('change');
+                
                 $('#address').val(data.address);
                 $('#notes').val(data.notes);
                 $('#modalTitle').text('Edit Patient');

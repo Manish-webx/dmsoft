@@ -69,11 +69,15 @@
                         render: function (data, type, row) {
                             let pdfUrl = '{{ route("prescriptions.pdf", ":id") }}'.replace(':id', data);
                             let viewPdfUrl = '{{ route("prescriptions.viewPdf", ":id") }}'.replace(':id', data);
+                            let billingPdfUrl = '{{ route("prescriptions.billingPdf", ":id") }}'.replace(':id', data);
+                            let viewBillingPdfUrl = '{{ route("prescriptions.viewBillingPdf", ":id") }}'.replace(':id', data);
                             let editUrl = '{{ route("prescriptions.edit", ":id") }}'.replace(':id', data);
                             return `
                                     <a href="${editUrl}" class="btn btn-sm btn-info" title="Edit Prescription"><i class="fas fa-edit"></i></a>
-                                    <a href="${viewPdfUrl}" target="_blank" class="btn btn-sm btn-primary" title="View PDF"><i class="fas fa-eye"></i></a>
-                                    <a href="${pdfUrl}" class="btn btn-sm btn-secondary" title="Download PDF"><i class="fas fa-download"></i></a>
+                                    <a href="${viewPdfUrl}" target="_blank" class="btn btn-sm btn-primary" title="View Prescription"><i class="fas fa-file-medical"></i></a>
+                                    <a href="${pdfUrl}" class="btn btn-sm btn-secondary" title="Download Prescription"><i class="fas fa-download"></i></a>
+                                    <a href="${viewBillingPdfUrl}" target="_blank" class="btn btn-sm btn-warning" title="View Bill"><i class="fas fa-file-invoice-dollar"></i></a>
+                                    <a href="${billingPdfUrl}" class="btn btn-sm btn-dark" title="Download Bill"><i class="fas fa-file-download"></i></a>
                                 `;
                         }
                     }

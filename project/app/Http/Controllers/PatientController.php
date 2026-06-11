@@ -23,13 +23,14 @@ class PatientController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'gender' => 'nullable|string',
-            'dob' => 'nullable|date',
+            'dob' => 'nullable|string',
             'address' => 'nullable|string',
+            'source' => 'nullable|string|max:255',
         ]);
 
         Patient::updateOrCreate(
             ['id' => $request->id],
-            $request->only('name', 'phone', 'gender', 'dob', 'address', 'notes')
+            $request->only('name', 'phone', 'gender', 'dob', 'address', 'notes', 'source')
         );
 
         return response()->json(['success' => 'Patient saved successfully.']);

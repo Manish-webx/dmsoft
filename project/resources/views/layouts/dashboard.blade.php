@@ -21,10 +21,24 @@
     
     @stack('styles')
 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --brand-navy: #1B2A4A;
+            --brand-navy-light: #263A5E;
+            --brand-rose: #B76E79;
+            --brand-rose-dark: #9E5563;
+            --brand-bg: #FEFBFB;
+            --text-dark: #333333;
+            --text-light: #fdfdfd;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f4f6f9;
+            background-color: var(--brand-bg);
+            color: var(--text-dark);
+        }
+        h1, h2, h3, h4, h5, h6, .brand-heading {
+            font-family: 'Playfair Display', serif;
         }
         .sidebar {
             height: 100vh;
@@ -32,46 +46,141 @@
             position: fixed;
             top: 0;
             left: 0;
-            background-color: #2c3e50;
+            background-color: var(--brand-navy);
             padding-top: 20px;
-            color: #fff;
+            color: var(--text-light);
             transition: all 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         }
         .sidebar .nav-link {
-            color: #cbd5e1;
-            padding: 10px 20px;
+            color: #d1d5db;
+            padding: 12px 20px;
             margin-bottom: 5px;
             transition: all 0.2s;
+            font-weight: 500;
         }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background-color: #34495e;
+        .sidebar .nav-link:hover {
+            background-color: var(--brand-navy-light);
             color: #fff;
-            border-left: 4px solid #3498db;
+        }
+        .sidebar .nav-link.active {
+            background-color: var(--brand-navy-light);
+            color: #fff;
+            border-left: 4px solid var(--brand-rose);
         }
         .sidebar .nav-link i {
-            margin-right: 10px;
+            margin-right: 12px;
             width: 20px;
             text-align: center;
+            color: var(--brand-rose);
+        }
+        .sidebar .nav-link:hover i, .sidebar .nav-link.active i {
+            color: #fff;
         }
         .main-content {
             margin-left: 250px;
-            padding: 20px;
+            padding: 30px;
             transition: all 0.3s ease;
         }
         .topbar {
             background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            padding: 15px 25px;
+            margin-bottom: 30px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .card {
             border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+            background-color: #fff;
+        }
+        .card-header {
+            background-color: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 15px 20px;
+            font-weight: 600;
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand-rose), var(--brand-rose-dark));
+            border: none;
+            color: #fff;
+            border-radius: 20px;
+            padding: 8px 20px;
+            box-shadow: 0 4px 10px rgba(183, 110, 121, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover, .btn-primary:focus {
+            background: linear-gradient(135deg, var(--brand-rose-dark), var(--brand-rose));
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(183, 110, 121, 0.4);
+            color: #fff;
+        }
+        .btn-secondary {
+            background-color: #f1f5f9;
+            color: var(--brand-navy);
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 8px 20px;
+        }
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            color: var(--brand-navy);
+        }
+        
+        /* Modals */
+        .modal-content {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .modal-header {
+            background-color: var(--brand-bg);
+            border-bottom: 1px solid #eee;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 16px;
+        }
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-weight: 600;
+            color: var(--brand-navy);
+        }
+        
+        /* Forms */
+        .form-control, .form-select {
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            padding: 10px 15px;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--brand-rose);
+            box-shadow: 0 0 0 0.25rem rgba(183, 110, 121, 0.25);
+        }
+        label {
+            font-weight: 500;
+            color: var(--brand-navy);
+            margin-bottom: 5px;
+        }
+        
+        /* Tables */
+        .table {
+            color: var(--text-dark);
+        }
+        .table thead th {
+            background-color: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            color: var(--brand-navy);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -118,7 +227,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('revenues.*') ? 'active' : '' }}" href="{{ route('revenues.index') }}">
-                    <i class="fas fa-coins"></i> Revenue
+                    <i class="fas fa-file-invoice-dollar"></i> Billing
                 </a>
             </li>
         </ul>
