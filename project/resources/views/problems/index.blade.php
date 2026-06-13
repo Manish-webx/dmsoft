@@ -4,10 +4,17 @@
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Problems List</span>
-        <button class="btn btn-primary btn-sm" onclick="openProblemModal()">
-            <i class="fas fa-plus"></i> Add Problem
-        </button>
+        <span>Problems List {{ request('trashed') ? '(Trash)' : '' }}</span>
+        <div>
+            @if(request('trashed'))
+                <a href="{{ route('problems.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to List</a>
+            @else
+                <a href="{{ route('problems.index', ['trashed' => 1]) }}" class="btn btn-warning btn-sm me-2"><i class="fas fa-trash"></i> View Trash</a>
+                <button class="btn btn-primary btn-sm" onclick="openProblemModal()">
+                    <i class="fas fa-plus"></i> Add Problem
+                </button>
+            @endif
+        </div>
     </div>
     <div class="card-body">
         <table id="problemsTable" class="table table-bordered table-striped w-100">
@@ -72,7 +79,12 @@
         table = $('#problemsTable').DataTable({
             processing: true,
             serverSide: false,
-            ajax: "{{ route('problems.index') }}",
+            ajax: {
+                url: "{{ route('problems.index') }}",
+                data: function(d) {
+                    d.trashed = "{{ request('trashed', 0) }}";
+                }
+            },
             columns: [
                 { data: 'id' },
                 { data: 'name' },
@@ -85,10 +97,18 @@
                 { 
                     data: 'id',
                     render: function(data) {
-                        return `
-                            <button class="btn btn-sm btn-info" onclick="editProblem(${data})"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteProblem(${data})"><i class="fas fa-trash"></i> Delete</button>
-                        `;
+                        let isTrashed = "{{ request('trashed', 0) }}";
+                        if (isTrashed == "1") {
+                            return `
+                                <button class="btn btn-sm btn-success" onclick="restoreProblem(${data})"><i class="fas fa-undo"></i> Restore</button>
+                                <button class="btn btn-sm btn-danger" onclick="forceDeleteProblem(${data})"><i class="fas fa-times"></i> Delete Permanently</button>
+                            `;
+                        } else {
+                            return `
+                                <button class="btn btn-sm btn-info" onclick="editProblem(${data})"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteProblem(${data})"><i class="fas fa-trash"></i> Delete</button>
+                            `;
+                        }
                     }
                 }
             ]
@@ -182,7 +202,7 @@
     window.deleteProblem = function(id) {
         Swal.fire({
             title: 'Are you sure?',
-            text: "You want to delete this problem?",
+            text: "You want to delete this problem? It will be moved to trash.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -192,6 +212,58 @@
             if (result.isConfirmed) {
                 $.ajax({
                     url: `/problems/${id}`,
+                    type: 'DELETE',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        toastr.success(response.success);
+                        table.ajax.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    window.restoreProblem = function(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to restore this problem?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, restore it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/problems/${id}/restore`,
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        toastr.success(response.success);
+                        table.ajax.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    window.forceDeleteProblem = function(id) {
+        Swal.fire({
+            title: 'Are you absolutely sure?',
+            text: "This will permanently delete the problem.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete permanently!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/problems/${id}/force-delete`,
                     type: 'DELETE',
                     data: {
                         _token: $('meta[name="csrf-token"]').attr('content')

@@ -19,8 +19,11 @@ class PrescriptionController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $prescriptions = Prescription::with(['patient', 'doctor', 'problem'])->latest()->get();
-            return response()->json(['data' => $prescriptions]);
+            $query = Prescription::with(['patient', 'doctor', 'problem'])->latest();
+            if ($request->has('trashed') && $request->trashed) {
+                $query->onlyTrashed();
+            }
+            return response()->json(['data' => $query->get()]);
         }
         return view('prescriptions.index');
     }
@@ -345,5 +348,23 @@ class PrescriptionController extends Controller
         $prescription = Prescription::with(['patient', 'doctor', 'revenue'])->findOrFail($id);
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('prescriptions.billing_pdf', compact('prescription'));
         return $pdf->stream('Bill-'.$prescription->id.'.pdf');
+    }
+
+    public function destroy($id)
+    {
+        Prescription::findOrFail($id)->delete();
+        return response()->json(['success' => 'Prescription moved to trash.']);
+    }
+
+    public function restore($id)
+    {
+        Prescription::withTrashed()->findOrFail($id)->restore();
+        return response()->json(['success' => 'Prescription restored successfully.']);
+    }
+
+    public function forceDelete($id)
+    {
+        Prescription::withTrashed()->findOrFail($id)->forceDelete();
+        return response()->json(['success' => 'Prescription deleted permanently.']);
     }
 }

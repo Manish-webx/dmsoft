@@ -10,8 +10,11 @@ class ProblemController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $problems = Problem::latest()->get();
-            return response()->json(['data' => $problems]);
+            $query = Problem::latest();
+            if ($request->has('trashed') && $request->trashed) {
+                $query->onlyTrashed();
+            }
+            return response()->json(['data' => $query->get()]);
         }
         return view('problems.index');
     }
@@ -47,6 +50,18 @@ class ProblemController extends Controller
     public function destroy($id)
     {
         Problem::findOrFail($id)->delete();
-        return response()->json(['success' => 'Problem deleted successfully.']);
+        return response()->json(['success' => 'Problem moved to trash.']);
+    }
+
+    public function restore($id)
+    {
+        Problem::withTrashed()->findOrFail($id)->restore();
+        return response()->json(['success' => 'Problem restored successfully.']);
+    }
+
+    public function forceDelete($id)
+    {
+        Problem::withTrashed()->findOrFail($id)->forceDelete();
+        return response()->json(['success' => 'Problem deleted permanently.']);
     }
 }

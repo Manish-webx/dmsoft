@@ -4,10 +4,17 @@
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Prescription List</span>
-            <a href="{{ route('prescriptions.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus"></i> Write Prescription
-            </a>
+            <span>Prescription List {{ request('trashed') ? '(Trash)' : '' }}</span>
+            <div>
+                @if(request('trashed'))
+                    <a href="{{ route('prescriptions.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to List</a>
+                @else
+                    <a href="{{ route('prescriptions.index', ['trashed' => 1]) }}" class="btn btn-warning btn-sm me-2"><i class="fas fa-trash"></i> View Trash</a>
+                    <a href="{{ route('prescriptions.create') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus"></i> Write Prescription
+                    </a>
+                @endif
+            </div>
         </div>
         <div class="card-body">
             <table id="prescriptionsTable" class="table table-bordered table-striped w-100">
@@ -35,7 +42,12 @@
             $('#prescriptionsTable').DataTable({
                 processing: true,
                 serverSide: false,
-                ajax: "{{ route('prescriptions.index') }}",
+                ajax: {
+                    url: "{{ route('prescriptions.index') }}",
+                    data: function(d) {
+                        d.trashed = "{{ request('trashed', 0) }}";
+                    }
+                },
                 columns: [
                     { data: 'patient.patient_code' },
                     {
@@ -72,18 +84,96 @@
                             let billingPdfUrl = '{{ route("prescriptions.billingPdf", ":id") }}'.replace(':id', data);
                             let viewBillingPdfUrl = '{{ route("prescriptions.viewBillingPdf", ":id") }}'.replace(':id', data);
                             let editUrl = '{{ route("prescriptions.edit", ":id") }}'.replace(':id', data);
-                            return `
+                            let isTrashed = "{{ request('trashed', 0) }}";
+                            if (isTrashed == "1") {
+                                return `
+                                    <button class="btn btn-sm btn-success" onclick="restorePrescription(${data})"><i class="fas fa-undo"></i> Restore</button>
+                                    <button class="btn btn-sm btn-danger" onclick="forceDeletePrescription(${data})"><i class="fas fa-times"></i> Delete Permanently</button>
+                                `;
+                            } else {
+                                return `
                                     <a href="${editUrl}" class="btn btn-sm btn-info" title="Edit Prescription"><i class="fas fa-edit"></i></a>
                                     <a href="${viewPdfUrl}" target="_blank" class="btn btn-sm btn-primary" title="View Prescription"><i class="fas fa-file-medical"></i></a>
                                     <a href="${pdfUrl}" class="btn btn-sm btn-secondary" title="Download Prescription"><i class="fas fa-download"></i></a>
                                     <a href="${viewBillingPdfUrl}" target="_blank" class="btn btn-sm btn-warning" title="View Bill"><i class="fas fa-file-invoice-dollar"></i></a>
                                     <a href="${billingPdfUrl}" class="btn btn-sm btn-dark" title="Download Bill"><i class="fas fa-file-download"></i></a>
+                                    <button class="btn btn-sm btn-danger" onclick="deletePrescription(${data})" title="Delete"><i class="fas fa-trash"></i></button>
                                 `;
+                            }
                         }
                     }
                 ],
                 order: [[0, 'desc']]
             });
         });
+
+        function deletePrescription(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You want to delete this prescription? It will be moved to trash.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/prescriptions/${id}`,
+                        type: 'DELETE',
+                        success: function(response) {
+                            toastr.success(response.success);
+                            $('#prescriptionsTable').DataTable().ajax.reload();
+                        }
+                    });
+                }
+            });
+        }
+
+        function restorePrescription(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to restore this prescription?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, restore it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/prescriptions/${id}/restore`,
+                        type: 'POST',
+                        success: function(response) {
+                            toastr.success(response.success);
+                            $('#prescriptionsTable').DataTable().ajax.reload();
+                        }
+                    });
+                }
+            });
+        }
+
+        function forceDeletePrescription(id) {
+            Swal.fire({
+                title: 'Are you absolutely sure?',
+                text: "This will permanently delete the prescription.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete permanently!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/prescriptions/${id}/force-delete`,
+                        type: 'DELETE',
+                        success: function(response) {
+                            toastr.success(response.success);
+                            $('#prescriptionsTable').DataTable().ajax.reload();
+                        }
+                    });
+                }
+            });
+        }
     </script>
 @endpush

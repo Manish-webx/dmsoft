@@ -16,18 +16,22 @@ class AppointmentController extends Controller
             // DataTable request
             $query = Appointment::with(['patient', 'doctor'])->latest();
             
-            if ($request->has('date_from') && !empty($request->date_from)) {
-                $query->whereDate('appointment_date', '>=', $request->date_from);
+            if ($request->has('trashed') && $request->trashed) {
+                $query->onlyTrashed();
             } else {
-                // Default to today if no filter
-                $query->whereDate('appointment_date', '>=', now()->toDateString());
-            }
+                if ($request->has('date_from') && !empty($request->date_from)) {
+                    $query->whereDate('appointment_date', '>=', $request->date_from);
+                } else {
+                    // Default to today if no filter
+                    $query->whereDate('appointment_date', '>=', now()->toDateString());
+                }
 
-            if ($request->has('date_to') && !empty($request->date_to)) {
-                $query->whereDate('appointment_date', '<=', $request->date_to);
-            } else {
-                // Default to today if no filter
-                $query->whereDate('appointment_date', '<=', now()->toDateString());
+                if ($request->has('date_to') && !empty($request->date_to)) {
+                    $query->whereDate('appointment_date', '<=', $request->date_to);
+                } else {
+                    // Default to today if no filter
+                    $query->whereDate('appointment_date', '<=', now()->toDateString());
+                }
             }
             
             $appointments = $query->get();
@@ -77,6 +81,18 @@ class AppointmentController extends Controller
     public function destroy($id)
     {
         Appointment::findOrFail($id)->delete();
-        return response()->json(['success' => 'Appointment deleted successfully.']);
+        return response()->json(['success' => 'Appointment moved to trash.']);
+    }
+
+    public function restore($id)
+    {
+        Appointment::withTrashed()->findOrFail($id)->restore();
+        return response()->json(['success' => 'Appointment restored successfully.']);
+    }
+
+    public function forceDelete($id)
+    {
+        Appointment::withTrashed()->findOrFail($id)->forceDelete();
+        return response()->json(['success' => 'Appointment deleted permanently.']);
     }
 }

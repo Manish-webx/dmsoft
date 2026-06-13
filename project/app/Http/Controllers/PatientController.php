@@ -11,8 +11,11 @@ class PatientController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $patients = Patient::latest()->get();
-            return response()->json(['data' => $patients]);
+            $query = Patient::latest();
+            if ($request->has('trashed') && $request->trashed) {
+                $query->onlyTrashed();
+            }
+            return response()->json(['data' => $query->get()]);
         }
         return view('patients.index');
     }
@@ -45,6 +48,18 @@ class PatientController extends Controller
     public function destroy($id)
     {
         Patient::findOrFail($id)->delete();
-        return response()->json(['success' => 'Patient deleted successfully.']);
+        return response()->json(['success' => 'Patient moved to trash.']);
+    }
+
+    public function restore($id)
+    {
+        Patient::withTrashed()->findOrFail($id)->restore();
+        return response()->json(['success' => 'Patient restored successfully.']);
+    }
+
+    public function forceDelete($id)
+    {
+        Patient::withTrashed()->findOrFail($id)->forceDelete();
+        return response()->json(['success' => 'Patient deleted permanently.']);
     }
 }

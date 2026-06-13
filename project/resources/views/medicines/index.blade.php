@@ -4,10 +4,17 @@
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Medicine List</span>
-        <button class="btn btn-primary btn-sm" onclick="openModal()">
-            <i class="fas fa-plus"></i> Add Medicine
-        </button>
+        <span>Medicine List {{ request('trashed') ? '(Trash)' : '' }}</span>
+        <div>
+            @if(request('trashed'))
+                <a href="{{ route('medicines.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to List</a>
+            @else
+                <a href="{{ route('medicines.index', ['trashed' => 1]) }}" class="btn btn-warning btn-sm me-2"><i class="fas fa-trash"></i> View Trash</a>
+                <button class="btn btn-primary btn-sm" onclick="openModal()">
+                    <i class="fas fa-plus"></i> Add Medicine
+                </button>
+            @endif
+        </div>
     </div>
     <div class="card-body">
         <table id="medicinesTable" class="table table-bordered table-striped w-100">
@@ -102,7 +109,12 @@
         table = $('#medicinesTable').DataTable({
             processing: true,
             serverSide: false,
-            ajax: "{{ route('medicines.index') }}",
+            ajax: {
+                url: "{{ route('medicines.index') }}",
+                data: function(d) {
+                    d.trashed = "{{ request('trashed', 0) }}";
+                }
+            },
             columns: [
                 { data: 'id' },
                 { data: 'name' },
@@ -129,11 +141,19 @@
                 { 
                     data: 'id',
                     render: function(data, type, row) {
-                        return `
-                            <button class="btn btn-sm btn-success text-white" onclick="addStock(${data})" title="Add Stock"><i class="fas fa-plus-circle"></i></button>
-                            <button class="btn btn-sm btn-info text-white" onclick="editMedicine(${data})" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteMedicine(${data})" title="Delete"><i class="fas fa-trash"></i></button>
-                        `;
+                        let isTrashed = "{{ request('trashed', 0) }}";
+                        if (isTrashed == "1") {
+                            return `
+                                <button class="btn btn-sm btn-success" onclick="restoreMedicine(${data})"><i class="fas fa-undo"></i> Restore</button>
+                                <button class="btn btn-sm btn-danger" onclick="forceDeleteMedicine(${data})"><i class="fas fa-times"></i> Delete Permanently</button>
+                            `;
+                        } else {
+                            return `
+                                <button class="btn btn-sm btn-success text-white" onclick="addStock(${data})" title="Add Stock"><i class="fas fa-plus-circle"></i></button>
+                                <button class="btn btn-sm btn-info text-white" onclick="editMedicine(${data})" title="Edit"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteMedicine(${data})" title="Delete"><i class="fas fa-trash"></i></button>
+                            `;
+                        }
                     }
                 }
             ]
@@ -212,7 +232,7 @@
     function deleteMedicine(id) {
         Swal.fire({
             title: 'Are you sure?',
-            text: "You want to delete this medicine?",
+            text: "You want to delete this medicine? It will be moved to trash.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -222,6 +242,52 @@
             if (result.isConfirmed) {
                 $.ajax({
                     url: `/medicines/${id}`,
+                    type: 'DELETE',
+                    success: function(response) {
+                        toastr.success(response.success);
+                        table.ajax.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    function restoreMedicine(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to restore this medicine?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, restore it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/medicines/${id}/restore`,
+                    type: 'POST',
+                    success: function(response) {
+                        toastr.success(response.success);
+                        table.ajax.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    function forceDeleteMedicine(id) {
+        Swal.fire({
+            title: 'Are you absolutely sure?',
+            text: "This will permanently delete the medicine.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete permanently!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/medicines/${id}/force-delete`,
                     type: 'DELETE',
                     success: function(response) {
                         toastr.success(response.success);

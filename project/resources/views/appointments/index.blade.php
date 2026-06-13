@@ -23,10 +23,17 @@
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <span>Appointments List</span>
-        <button class="btn btn-primary btn-sm" onclick="openModal()">
-            <i class="fas fa-plus"></i> New
-        </button>
+        <span>Appointments List {{ request('trashed') ? '(Trash)' : '' }}</span>
+        <div>
+            @if(request('trashed'))
+                <a href="{{ route('appointments.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to List</a>
+            @else
+                <a href="{{ route('appointments.index', ['trashed' => 1]) }}" class="btn btn-warning btn-sm me-2"><i class="fas fa-trash"></i> View Trash</a>
+                <button class="btn btn-primary btn-sm" onclick="openModal()">
+                    <i class="fas fa-plus"></i> New
+                </button>
+            @endif
+        </div>
     </div>
     <div class="card-body">
         <table id="appointmentsTable" class="table table-bordered table-striped w-100">
@@ -122,6 +129,7 @@
                 data: function(d) {
                     d.date_from = $('#date_from').val();
                     d.date_to = $('#date_to').val();
+                    d.trashed = "{{ request('trashed', 0) }}";
                 }
             },
             columns: [
@@ -151,10 +159,18 @@
                 { 
                     data: 'id',
                     render: function(data) {
-                        return `
-                            <button class="btn btn-sm btn-info text-white py-0 px-1" onclick="editAppointment(${data})"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-danger py-0 px-1" onclick="deleteAppointment(${data})"><i class="fas fa-trash"></i></button>
-                        `;
+                        let isTrashed = "{{ request('trashed', 0) }}";
+                        if (isTrashed == "1") {
+                            return `
+                                <button class="btn btn-sm btn-success py-0 px-1" onclick="restoreAppointment(${data})"><i class="fas fa-undo"></i></button>
+                                <button class="btn btn-sm btn-danger py-0 px-1" onclick="forceDeleteAppointment(${data})"><i class="fas fa-times"></i></button>
+                            `;
+                        } else {
+                            return `
+                                <button class="btn btn-sm btn-info text-white py-0 px-1" onclick="editAppointment(${data})"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-sm btn-danger py-0 px-1" onclick="deleteAppointment(${data})"><i class="fas fa-trash"></i></button>
+                            `;
+                        }
                     }
                 }
             ],
@@ -228,7 +244,7 @@
     function deleteAppointment(id) {
         Swal.fire({
             title: 'Are you sure?',
-            text: "You want to delete this appointment?",
+            text: "You want to delete this appointment? It will be moved to trash.",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -238,6 +254,52 @@
             if (result.isConfirmed) {
                 $.ajax({
                     url: `/appointments/${id}`,
+                    type: 'DELETE',
+                    success: function(response) {
+                        toastr.success(response.success);
+                        table.ajax.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    function restoreAppointment(id) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to restore this appointment?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, restore it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/appointments/${id}/restore`,
+                    type: 'POST',
+                    success: function(response) {
+                        toastr.success(response.success);
+                        table.ajax.reload();
+                    }
+                });
+            }
+        });
+    }
+
+    function forceDeleteAppointment(id) {
+        Swal.fire({
+            title: 'Are you absolutely sure?',
+            text: "This will permanently delete the appointment.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete permanently!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: `/appointments/${id}/force-delete`,
                     type: 'DELETE',
                     success: function(response) {
                         toastr.success(response.success);

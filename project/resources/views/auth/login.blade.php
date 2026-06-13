@@ -1,4 +1,11 @@
 <x-guest-layout>
+    <div class="mb-8">
+        <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Sign in to your account</h2>
+        <p class="mt-2 text-sm text-gray-600">
+            Welcome back! Please enter your details.
+        </p>
+    </div>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 

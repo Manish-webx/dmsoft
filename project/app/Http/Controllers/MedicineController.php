@@ -13,8 +13,11 @@ class MedicineController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $medicines = Medicine::latest()->get();
-            return response()->json(['data' => $medicines]);
+            $query = Medicine::latest();
+            if ($request->has('trashed') && $request->trashed) {
+                $query->onlyTrashed();
+            }
+            return response()->json(['data' => $query->get()]);
         }
         return view('medicines.index');
     }
@@ -49,7 +52,19 @@ class MedicineController extends Controller
     public function destroy($id)
     {
         Medicine::findOrFail($id)->delete();
-        return response()->json(['success' => 'Medicine deleted successfully.']);
+        return response()->json(['success' => 'Medicine moved to trash.']);
+    }
+
+    public function restore($id)
+    {
+        Medicine::withTrashed()->findOrFail($id)->restore();
+        return response()->json(['success' => 'Medicine restored successfully.']);
+    }
+
+    public function forceDelete($id)
+    {
+        Medicine::withTrashed()->findOrFail($id)->forceDelete();
+        return response()->json(['success' => 'Medicine deleted permanently.']);
     }
 
     public function addStock(Request $request)

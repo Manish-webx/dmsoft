@@ -4,10 +4,17 @@
 
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <span>Patient List</span>
-            <button class="btn btn-primary btn-sm" onclick="openModal()">
-                <i class="fas fa-plus"></i> Add Patient
-            </button>
+            <span>Patient List {{ request('trashed') ? '(Trash)' : '' }}</span>
+            <div>
+                @if(request('trashed'))
+                    <a href="{{ route('patients.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to List</a>
+                @else
+                    <a href="{{ route('patients.index', ['trashed' => 1]) }}" class="btn btn-warning btn-sm me-2"><i class="fas fa-trash"></i> View Trash</a>
+                    <button class="btn btn-primary btn-sm" onclick="openModal()">
+                        <i class="fas fa-plus"></i> Add Patient
+                    </button>
+                @endif
+            </div>
         </div>
         <div class="card-body">
             <table id="patientsTable" class="table table-bordered table-striped w-100">
@@ -104,7 +111,12 @@
             table = $('#patientsTable').DataTable({
                 processing: true,
                 serverSide: false,
-                ajax: "{{ route('patients.index') }}",
+                ajax: {
+                    url: "{{ route('patients.index') }}",
+                    data: function(d) {
+                        d.trashed = "{{ request('trashed', 0) }}";
+                    }
+                },
                 columns: [
                     { data: 'patient_code' },
                     { data: 'name' },
@@ -120,10 +132,18 @@
                     {
                         data: 'id',
                         render: function (data, type, row) {
-                            return `
-                                <button class="btn btn-sm btn-info text-white" onclick="editPatient(${data})"><i class="fas fa-edit"></i></button>
-                                <button class="btn btn-sm btn-danger" onclick="deletePatient(${data})"><i class="fas fa-trash"></i></button>
-                            `;
+                            let isTrashed = "{{ request('trashed', 0) }}";
+                            if (isTrashed == "1") {
+                                return `
+                                    <button class="btn btn-sm btn-success" onclick="restorePatient(${data})"><i class="fas fa-undo"></i> Restore</button>
+                                    <button class="btn btn-sm btn-danger" onclick="forceDeletePatient(${data})"><i class="fas fa-times"></i> Delete Permanently</button>
+                                `;
+                            } else {
+                                return `
+                                    <button class="btn btn-sm btn-info text-white" onclick="editPatient(${data})"><i class="fas fa-edit"></i></button>
+                                    <button class="btn btn-sm btn-danger" onclick="deletePatient(${data})"><i class="fas fa-trash"></i></button>
+                                `;
+                            }
                         }
                     }
                 ]
@@ -187,7 +207,7 @@
         function deletePatient(id) {
             Swal.fire({
                 title: 'Are you sure?',
-                text: "You want to delete this patient?",
+                text: "You want to delete this patient? It will be moved to trash.",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -197,6 +217,52 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         url: `/patients/${id}`,
+                        type: 'DELETE',
+                        success: function (response) {
+                            toastr.success(response.success);
+                            table.ajax.reload();
+                        }
+                    });
+                }
+            });
+        }
+
+        function restorePatient(id) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to restore this patient?",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, restore it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/patients/${id}/restore`,
+                        type: 'POST',
+                        success: function (response) {
+                            toastr.success(response.success);
+                            table.ajax.reload();
+                        }
+                    });
+                }
+            });
+        }
+
+        function forceDeletePatient(id) {
+            Swal.fire({
+                title: 'Are you absolutely sure?',
+                text: "This action cannot be undone! This will permanently delete the patient.",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete permanently!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: `/patients/${id}/force-delete`,
                         type: 'DELETE',
                         success: function (response) {
                             toastr.success(response.success);
