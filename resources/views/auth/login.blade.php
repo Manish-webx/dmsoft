@@ -277,7 +277,7 @@
 
             <div class="logo-container">
                 <div>
-                    <img src="{{ asset('assets/image/logo1.png') }}" alt="Dermatales Logo"
+                    <img src="https://www.dermatales.com/images/logo.png" alt="Dermatales Logo"
                         style="width: 150px; height: auto;">
                 </div>
             </div>
