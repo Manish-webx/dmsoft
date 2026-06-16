@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }} - Login</title>
+    <title>Dermatales - Login</title>
+    <meta name="description" content="Login to Dermatales Clinic Management System. Manage patients, appointments, and billing securely.">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
