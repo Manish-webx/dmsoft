@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -55,8 +56,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .login-card {
@@ -212,19 +220,23 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="login-container">
         <div class="login-card">
-            
+
             <div class="logo-container">
                 <div>
-                    <img src="{{ asset('assets/image/logo1.png') }}" alt="Dermatales Logo" style="width: 150px; height: auto;">
+                    <img src="{{ public_path('assets/image/logo1.png') }}" alt="Dermatales Logo"
+                        style="width: 150px; height: auto;">
                 </div>
             </div>
-            
+
             <h2 class="title">Reset Password</h2>
-            <p class="subtitle">{{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link.') }}</p>
+            <p class="subtitle">
+                {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link.') }}
+            </p>
 
             <!-- Session Status -->
             @if (session('status'))
@@ -239,7 +251,8 @@
                 <!-- Email Address -->
                 <div class="form-group">
                     <label for="email" class="form-label">Email Address</label>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus class="form-input">
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                        class="form-input">
                     @if ($errors->get('email'))
                         <ul class="error-message">
                             @foreach ((array) $errors->get('email') as $message)
@@ -253,7 +266,7 @@
                     {{ __('Email Password Reset Link') }}
                 </button>
             </form>
-            
+
             @if (Route::has('login'))
                 <a href="{{ route('login') }}" class="back-link">&larr; Back to login</a>
             @endif
@@ -262,12 +275,12 @@
 
     <!-- Custom JS -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('resetForm');
             const submitBtn = document.getElementById('submitBtn');
-            
-            if(form && submitBtn) {
-                form.addEventListener('submit', function() {
+
+            if (form && submitBtn) {
+                form.addEventListener('submit', function () {
                     submitBtn.innerHTML = 'Sending link...';
                     submitBtn.style.opacity = '0.7';
                     submitBtn.style.pointerEvents = 'none';
@@ -276,4 +289,5 @@
         });
     </script>
 </body>
+
 </html>
