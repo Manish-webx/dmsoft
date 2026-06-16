@@ -188,7 +188,9 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <h4 class="text-center mb-4 fw-bold">DM Soft</h4>
+        <div class="text-center mb-4 mt-2">
+            <img src="{{ asset('assets/image/logo1.png') }}" alt="Dermatales Logo" style="width: 150px; height: auto; background-color: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 8px;">
+        </div>
         <ul class="nav flex-column">
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
