@@ -7,9 +7,11 @@
             <span>Patient List {{ request('trashed') ? '(Trash)' : '' }}</span>
             <div>
                 @if(request('trashed'))
-                    <a href="{{ route('patients.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Back to List</a>
+                    <a href="{{ route('patients.index') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i>
+                        Back to List</a>
                 @else
-                    <a href="{{ route('patients.index', ['trashed' => 1]) }}" class="btn btn-warning btn-sm me-2"><i class="fas fa-trash"></i> View Trash</a>
+                    <a href="{{ route('patients.index', ['trashed' => 1]) }}" class="btn btn-warning btn-sm me-2"><i
+                            class="fas fa-trash"></i> View Trash</a>
                     <button class="btn btn-primary btn-sm" onclick="openModal()">
                         <i class="fas fa-plus"></i> Add Patient
                     </button>
@@ -74,7 +76,10 @@
                                 <option value="Google">Google</option>
                                 <option value="Instagram">Instagram</option>
                                 <option value="Youtube">Youtube</option>
-                                <option value="LinkedIn">LinkedIn</option>
+                                <option value="Walk In">Walk In</option>
+                                <option value="Referral">Referral</option>
+                                <option value="Templates">Templates</option>
+                                <option value="Other">Other</option>
                             </select>
                             <small class="text-muted">Select from list or type a custom option</small>
                         </div>
@@ -113,7 +118,7 @@
                 serverSide: false,
                 ajax: {
                     url: "{{ route('patients.index') }}",
-                    data: function(d) {
+                    data: function (d) {
                         d.trashed = "{{ request('trashed', 0) }}";
                     }
                 },
@@ -123,9 +128,9 @@
                     { data: 'phone' },
                     { data: 'gender' },
                     { data: 'dob' },
-                    { 
+                    {
                         data: 'source',
-                        render: function(data) {
+                        render: function (data) {
                             return data ? `<span class="badge bg-secondary">${data}</span>` : '<span class="text-muted">-</span>';
                         }
                     },
@@ -135,14 +140,14 @@
                             let isTrashed = "{{ request('trashed', 0) }}";
                             if (isTrashed == "1") {
                                 return `
-                                    <button class="btn btn-sm btn-success" onclick="restorePatient(${data})"><i class="fas fa-undo"></i> Restore</button>
-                                    <button class="btn btn-sm btn-danger" onclick="forceDeletePatient(${data})"><i class="fas fa-times"></i> Delete Permanently</button>
-                                `;
+                                            <button class="btn btn-sm btn-success" onclick="restorePatient(${data})"><i class="fas fa-undo"></i> Restore</button>
+                                            <button class="btn btn-sm btn-danger" onclick="forceDeletePatient(${data})"><i class="fas fa-times"></i> Delete Permanently</button>
+                                        `;
                             } else {
                                 return `
-                                    <button class="btn btn-sm btn-info text-white" onclick="editPatient(${data})"><i class="fas fa-edit"></i></button>
-                                    <button class="btn btn-sm btn-danger" onclick="deletePatient(${data})"><i class="fas fa-trash"></i></button>
-                                `;
+                                            <button class="btn btn-sm btn-info text-white" onclick="editPatient(${data})"><i class="fas fa-edit"></i></button>
+                                            <button class="btn btn-sm btn-danger" onclick="deletePatient(${data})"><i class="fas fa-trash"></i></button>
+                                        `;
                             }
                         }
                     }
@@ -189,14 +194,14 @@
                 $('#phone').val(data.phone);
                 $('#gender').val(data.gender);
                 $('#dob').val(data.dob);
-                
+
                 // For select2, if the value doesn't exist, we might need to add it before selecting
-                if(data.source && $('#source').find("option[value='" + data.source + "']").length == 0) {
+                if (data.source && $('#source').find("option[value='" + data.source + "']").length == 0) {
                     var newOption = new Option(data.source, data.source, true, true);
                     $('#source').append(newOption);
                 }
                 $('#source').val(data.source).trigger('change');
-                
+
                 $('#address').val(data.address);
                 $('#notes').val(data.notes);
                 $('#modalTitle').text('Edit Patient');
