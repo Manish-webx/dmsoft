@@ -287,7 +287,15 @@
             <div>
                 <h5 class="mb-0 fw-bold text-dark">@yield('title', 'Dashboard')</h5>
             </div>
-            <div class="dropdown">
+            <div class="d-flex align-items-center">
+                <form action="{{ route('set-location') }}" method="POST" class="me-3 mb-0" id="locationForm">
+                    @csrf
+                    <select name="location" class="form-select form-select-sm" onchange="document.getElementById('locationForm').submit();" style="border-radius: 20px; font-weight: 500; border-color: #e2e8f0; min-width: 140px;">
+                        <option value="Gurgaon" {{ session('current_location', 'Gurgaon') == 'Gurgaon' ? 'selected' : '' }}>Gurgaon</option>
+                        <option value="Patel Nagar" {{ session('current_location', 'Gurgaon') == 'Patel Nagar' ? 'selected' : '' }}>Patel Nagar</option>
+                    </select>
+                </form>
+                <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown"
                     aria-expanded="false">
                     <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name ?? 'User' }}
@@ -304,6 +312,7 @@
                         </form>
                     </li>
                 </ul>
+            </div>
             </div>
         </div>
 

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasLocation;
 
 class Patient extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasLocation;
     protected $fillable = [
         'patient_code', 'name', 'phone', 'gender', 'dob', 'address', 'notes', 'source'
     ];

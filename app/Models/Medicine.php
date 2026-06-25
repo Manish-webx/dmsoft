@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasLocation;
 
 class Medicine extends Model
 {
+    use HasLocation;
     use SoftDeletes;
     protected $fillable = [
         'name', 'stock', 'unit', 'price', 'status', 'items_per_strip'

@@ -16,6 +16,7 @@ use App\Http\Controllers\PrescriptionController;
 use App\Http\Controllers\ProblemController;
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/set-location', [App\Http\Controllers\LocationController::class, 'setLocation'])->name('set-location');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::post('patients/{patient}/restore', [PatientController::class, 'restore'])->name('patients.restore');

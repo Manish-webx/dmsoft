@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasLocation;
 
 class Revenue extends Model
 {
+    use HasLocation;
+
     protected $fillable = [
         'patient_id', 'prescription_id', 'subtotal', 'discount_type', 
         'discount_value', 'final_amount', 'received_amount', 'due_amount', 

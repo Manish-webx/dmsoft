@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\HasLocation;
 
 class MedicineTransaction extends Model
 {
+    use HasLocation;
     protected $fillable = [
         'medicine_id', 'type', 'quantity', 'reference_type', 'reference_id', 'created_by'
     ];
