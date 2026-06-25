@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Dermatales - Login Page</title>
+    <title>Dermatales - Login</title>
     <meta name="description"
         content="Login to Dermatales Clinic Management System. Manage patients, appointments, and billing securely.">
 
