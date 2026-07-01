@@ -22,6 +22,7 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
+                    <th>Brand (Company Name)</th>
                     <th>Stock</th>
                     <th>Unit</th>
                     <th>Items/Strip</th>
@@ -49,6 +50,10 @@
                     <div class="mb-3">
                         <label>Medicine Name *</label>
                         <input type="text" name="name" id="name" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label>Brand (Company Name)</label>
+                        <input type="text" name="brand" id="brand" class="form-control">
                     </div>
                     <div class="mb-3">
                         <label>Unit (e.g., Tablets, ml, Bottle)</label>
@@ -118,6 +123,12 @@
             columns: [
                 { data: 'id' },
                 { data: 'name' },
+                { 
+                    data: 'brand',
+                    render: function(data) {
+                        return data ? data : '-';
+                    }
+                },
                 { 
                     data: 'stock',
                     render: function(data) {
@@ -220,6 +231,7 @@
         $.get(`/medicines/${id}/edit`, function(data) {
             $('#medicine_id').val(data.id);
             $('#name').val(data.name);
+            $('#brand').val(data.brand);
             $('#unit').val(data.unit);
             $('#items_per_strip').val(data.items_per_strip);
             $('#price').val(data.price);

@@ -26,13 +26,14 @@ class MedicineController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'brand' => 'nullable|string|max:255',
             'unit' => 'nullable|string',
             'price' => 'nullable|numeric',
             'status' => 'nullable|boolean',
             'items_per_strip' => 'nullable|integer|min:1',
         ]);
 
-        $data = $request->only('name', 'unit', 'price', 'items_per_strip');
+        $data = $request->only('name', 'brand', 'unit', 'price', 'items_per_strip');
         $data['status'] = $request->has('status') ? 1 : 0;
 
         Medicine::updateOrCreate(

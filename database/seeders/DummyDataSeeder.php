@@ -43,6 +43,7 @@ class DummyDataSeeder extends Seeder
         for ($i = 1; $i <= 10; $i++) {
             $medicines[] = Medicine::create([
                 'name' => "Medicine $i",
+                'brand' => "Pharma $i",
                 'stock' => 100 + $i * 10,
                 'unit' => 'Tablet',
                 'price' => 10.50 + $i,

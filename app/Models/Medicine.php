@@ -11,7 +11,7 @@ class Medicine extends Model
     use HasLocation;
     use SoftDeletes;
     protected $fillable = [
-        'name', 'stock', 'unit', 'price', 'status', 'items_per_strip'
+        'name', 'brand', 'stock', 'unit', 'price', 'status', 'items_per_strip'
     ];
 
     public function transactions()
