@@ -16,14 +16,30 @@ class DummyDataSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Create a Doctor User (if not exists)
-        $doctor = User::firstOrCreate(
-            ['email' => 'doctor@example.com'],
+        // 1. Create Doctor Users (if not exists)
+        $doctor1 = User::firstOrCreate(
+            ['email' => 'pooja@example.com'],
             [
-                'name' => 'Dr. John Doe',
+                'name' => 'Dr. Pooja Varshney',
                 'password' => Hash::make('password')
             ]
         );
+        if (!$doctor1->hasRole('Doctor')) {
+            $doctor1->assignRole('Doctor');
+        }
+
+        $doctor2 = User::firstOrCreate(
+            ['email' => 'piyush@example.com'],
+            [
+                'name' => 'Dr. Piyush Gupta',
+                'password' => Hash::make('password')
+            ]
+        );
+        if (!$doctor2->hasRole('Doctor')) {
+            $doctor2->assignRole('Doctor');
+        }
+
+        $doctors = [$doctor1, $doctor2];
 
         // 2. Create Patients
         $patients = [];
@@ -55,7 +71,7 @@ class DummyDataSeeder extends Seeder
         foreach ($patients as $index => $patient) {
             Appointment::create([
                 'patient_id' => $patient->id,
-                'doctor_id' => $doctor->id,
+                'doctor_id' => $doctors[$index % count($doctors)]->id,
                 'appointment_date' => Carbon::now()->addDays($index),
                 'status' => 'Scheduled',
                 'notes' => 'Routine checkup',
@@ -67,7 +83,7 @@ class DummyDataSeeder extends Seeder
         foreach ($patients as $index => $patient) {
             $prescription = Prescription::create([
                 'patient_id' => $patient->id,
-                'doctor_id' => $doctor->id,
+                'doctor_id' => $doctors[$index % count($doctors)]->id,
                 'date' => Carbon::now()->subDays($index)->format('Y-m-d'),
                 'next_followup_date' => Carbon::now()->addDays(7)->format('Y-m-d'),
                 'notes' => 'Take rest'
