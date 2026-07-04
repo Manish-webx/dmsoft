@@ -7,8 +7,7 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,7 +15,7 @@ return new class extends Migration
     {
         // 1. Rename existing John Doe / Doctor John to Dr. Pooja Varshney so existing appointments/prescriptions don't break
         $existingDoctor = User::where('name', 'like', '%John%')->orWhere('email', 'doctor@example.com')->first();
-        
+
         if ($existingDoctor) {
             $existingDoctor->update([
                 'name' => 'Dr. Pooja Varshney',
@@ -48,7 +47,7 @@ return new class extends Migration
                 'password' => Hash::make('password'),
             ]
         );
-        
+
         if (class_exists(Role::class) && isset($doctorRole)) {
             if (!$doctor2->hasRole('Doctor')) {
                 $doctor2->assignRole($doctorRole);
