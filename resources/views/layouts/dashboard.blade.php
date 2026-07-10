@@ -217,6 +217,53 @@
             font-size: 0.85rem;
             letter-spacing: 0.5px;
         }
+
+        /* Location Select Popup Modal */
+        .location-select-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #fff;
+            position: relative;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .location-select-card:hover {
+            border-color: var(--brand-rose);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(183, 110, 121, 0.15);
+        }
+
+        .location-select-card.active {
+            border-color: var(--brand-rose);
+            background-color: rgba(183, 110, 121, 0.05);
+            box-shadow: 0 8px 20px rgba(183, 110, 121, 0.25);
+        }
+
+        .location-select-card .check-indicator {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+
+        .location-select-card.active .check-indicator {
+            background-color: var(--brand-rose);
+            transform: scale(1.1);
+        }
     </style>
 </head>
 
@@ -320,6 +367,60 @@
         @yield('content')
     </div>
 
+    @if(!session()->has('current_location'))
+    <!-- Initial Location Selection Popup Modal -->
+    <div class="modal fade" id="locationPopupModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="locationPopupModalLabel" aria-hidden="true" style="z-index: 1060;">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; background: #fff;">
+                <div class="modal-header bg-white border-0 pt-4 pb-2 px-4 justify-content-center flex-column text-center">
+                    <div class="mb-2">
+                        <img src="https://www.dermatales.com/images/logo.png" alt="Dermatales Logo" style="height: 48px; width: auto;">
+                    </div>
+                    <h4 class="modal-title fw-bold text-dark mt-2" id="locationPopupModalLabel" style="font-family: 'Playfair Display', serif; color: var(--brand-navy);">Select Clinic Location</h4>
+                    <p class="text-muted small mb-0 mt-1">Please select the clinic location where you are operating today before proceeding further.</p>
+                </div>
+                <div class="modal-body p-4 pt-3">
+                    <form action="{{ route('set-location') }}" method="POST" id="popupLocationForm">
+                        @csrf
+                        <input type="hidden" name="location" id="selectedLocationInput" value="">
+                        
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <div class="location-select-card h-100" onclick="selectPopupLocation('Gurgaon', this)" ondblclick="selectAndSubmitLocation('Gurgaon')">
+                                    <div class="check-indicator"><i class="fas fa-check"></i></div>
+                                    <div class="mb-3 mt-2">
+                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 58px; height: 58px; background-color: rgba(183, 110, 121, 0.1); color: var(--brand-rose);">
+                                            <i class="fas fa-clinic-medical fa-xl"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-bold mb-1" style="color: var(--brand-navy); font-size: 1.15rem;">Gurgaon</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.8rem;">Main Laser & Aesthetics Center</p>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="location-select-card h-100" onclick="selectPopupLocation('Patel Nagar', this)" ondblclick="selectAndSubmitLocation('Patel Nagar')">
+                                    <div class="check-indicator"><i class="fas fa-check"></i></div>
+                                    <div class="mb-3 mt-2">
+                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 58px; height: 58px; background-color: rgba(27, 42, 74, 0.1); color: var(--brand-navy);">
+                                            <i class="fas fa-hospital fa-xl"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-bold mb-1" style="color: var(--brand-navy); font-size: 1.15rem;">Patel Nagar</h6>
+                                    <p class="text-muted mb-0" style="font-size: 0.8rem;">Consultation & Treatment Clinic</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" id="confirmLocationBtn" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm" style="border-radius: 14px; opacity: 0.65; pointer-events: none; transition: all 0.3s;" disabled>
+                            Select Location to Continue <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- Bootstrap 5 JS Bundle -->
@@ -373,6 +474,42 @@
             toastr.warning("{{ Session::get('warning') }}");
         @endif
     </script>
+
+    @if(!session()->has('current_location'))
+    <script>
+        function selectPopupLocation(locationName, element) {
+            document.getElementById('selectedLocationInput').value = locationName;
+            
+            document.querySelectorAll('.location-select-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            
+            element.classList.add('active');
+            
+            const confirmBtn = document.getElementById('confirmLocationBtn');
+            confirmBtn.disabled = false;
+            confirmBtn.style.opacity = '1';
+            confirmBtn.style.pointerEvents = 'auto';
+            confirmBtn.innerHTML = `Continue with ${locationName} <i class="fas fa-arrow-right ms-2"></i>`;
+        }
+
+        function selectAndSubmitLocation(locationName) {
+            document.getElementById('selectedLocationInput').value = locationName;
+            document.getElementById('popupLocationForm').submit();
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var locationPopupModalElement = document.getElementById('locationPopupModal');
+            if (locationPopupModalElement && typeof bootstrap !== 'undefined') {
+                var locationPopupModal = new bootstrap.Modal(locationPopupModalElement, {
+                    backdrop: 'static',
+                    keyboard: false
+                });
+                locationPopupModal.show();
+            }
+        });
+    </script>
+    @endif
 
     @stack('scripts')
 </body>
