@@ -133,7 +133,10 @@
                 }
             },
             columns: [
-                { data: 'patient.patient_code' },
+                { 
+                    data: 'patient.patient_code',
+                    defaultContent: 'N/A'
+                },
                 { 
                     data: 'appointment_date',
                     render: function(data) {
@@ -144,7 +147,10 @@
                         return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear() + ' ' + timeStr;
                     }
                 },
-                { data: 'patient.name' },
+                { 
+                    data: 'patient.name',
+                    defaultContent: 'Unknown Patient'
+                },
                 { 
                     data: 'status',
                     render: function(data) {

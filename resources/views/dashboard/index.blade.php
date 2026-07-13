@@ -91,9 +91,9 @@
                         <tbody>
                             @forelse($recentAppointments as $appointment)
                             <tr>
-                                <td>{{ $appointment->patient->name }}</td>
-                                <td>{{ $appointment->doctor->name }}</td>
-                                <td>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y h:i A') }}</td>
+                                <td>{{ $appointment->patient?->name ?? 'Unknown Patient' }}</td>
+                                <td>{{ $appointment->doctor?->name ?? 'Unknown Doctor' }}</td>
+                                <td>{{ $appointment->appointment_date ? \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y h:i A') : 'N/A' }}</td>
                                 <td>
                                     @if($appointment->status == 'Confirmed')
                                         <span class="badge bg-primary">{{ $appointment->status }}</span>
@@ -141,9 +141,9 @@
                         <tbody>
                             @forelse($recentPrescriptions as $prescription)
                             <tr>
-                                <td>{{ $prescription->patient->name }}</td>
-                                <td>{{ $prescription->doctor->name }}</td>
-                                <td>{{ $prescription->created_at->format('M d, Y') }}</td>
+                                <td>{{ $prescription->patient?->name ?? 'Unknown Patient' }}</td>
+                                <td>{{ $prescription->doctor?->name ?? 'Unknown Doctor' }}</td>
+                                <td>{{ $prescription->created_at?->format('M d, Y') ?? 'N/A' }}</td>
                                 <td>
                                     <a href="{{ route('prescriptions.pdf', $prescription->id) }}" class="btn btn-sm btn-danger" target="_blank" title="Download PDF">
                                         <i class="fas fa-file-pdf"></i>

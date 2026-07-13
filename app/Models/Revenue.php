@@ -17,16 +17,22 @@ class Revenue extends Model
 
     public function patient()
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(Patient::class)->withTrashed()->withoutGlobalScope('location')->withDefault([
+            'name' => 'Unknown Patient',
+            'patient_code' => 'N/A',
+            'phone' => 'N/A'
+        ]);
     }
 
     public function prescription()
     {
-        return $this->belongsTo(Prescription::class);
+        return $this->belongsTo(Prescription::class)->withoutGlobalScope('location');
     }
 
     public function creator()
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(User::class, 'created_by')->withDefault([
+            'name' => 'System'
+        ]);
     }
 }

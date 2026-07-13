@@ -22,12 +22,18 @@ class Prescription extends Model
 
     public function patient()
     {
-        return $this->belongsTo(Patient::class);
+        return $this->belongsTo(Patient::class)->withTrashed()->withoutGlobalScope('location')->withDefault([
+            'name' => 'Unknown Patient',
+            'patient_code' => 'N/A',
+            'phone' => 'N/A'
+        ]);
     }
 
     public function doctor()
     {
-        return $this->belongsTo(User::class, 'doctor_id');
+        return $this->belongsTo(User::class, 'doctor_id')->withDefault([
+            'name' => 'Unknown Doctor'
+        ]);
     }
 
     public function items()
@@ -42,11 +48,15 @@ class Prescription extends Model
 
     public function editor()
     {
-        return $this->belongsTo(User::class, 'edited_by');
+        return $this->belongsTo(User::class, 'edited_by')->withDefault([
+            'name' => 'Unknown Editor'
+        ]);
     }
 
     public function problem()
     {
-        return $this->belongsTo(Problem::class);
+        return $this->belongsTo(Problem::class)->withDefault([
+            'name' => 'Unknown Problem'
+        ]);
     }
 }

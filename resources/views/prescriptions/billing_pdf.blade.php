@@ -254,18 +254,18 @@
             <tr>
                 <td width="50%">
                     <div style="margin-bottom: 5px;"><span class="label">Patient Name:</span>
-                        {{ $prescription->patient->name }}</div>
+                        {{ $prescription->patient?->name ?? 'Unknown Patient' }}</div>
                     <div style="margin-bottom: 5px;"><span class="label">Patient ID:</span>
-                        {{ $prescription->patient->patient_code }}</div>
-                    <div><span class="label">Gender/Age:</span> {{ $prescription->patient->gender ?? 'N/A' }} / {{ $prescription->patient->dob ?? 'N/A' }}</div>
+                        {{ $prescription->patient?->patient_code ?? 'N/A' }}</div>
+                    <div><span class="label">Gender/Age:</span> {{ $prescription->patient?->gender ?? 'N/A' }} / {{ $prescription->patient?->dob ?? 'N/A' }}</div>
                 </td>
                 <td width="50%" style="text-align: right;">
                     <div style="margin-bottom: 5px;"><span class="label">Bill Date:</span>
-                        {{ $prescription->date->format('d M Y') }}</div>
+                        {{ $prescription->date?->format('d M Y') ?? 'N/A' }}</div>
                     <div style="margin-bottom: 5px;"><span class="label">Prescription #:</span>
                         {{ $prescription->id }}
                     </div>
-                    <div><span class="label">Doctor:</span> {{ $prescription->doctor->name }}</div>
+                    <div><span class="label">Doctor:</span> {{ $prescription->doctor?->name ?? 'Unknown Doctor' }}</div>
                 </td>
             </tr>
         </table>

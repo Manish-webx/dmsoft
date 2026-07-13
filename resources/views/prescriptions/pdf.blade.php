@@ -261,18 +261,18 @@
             <tr>
                 <td width="50%">
                     <div style="margin-bottom: 5px;"><span class="label">Patient Name:</span>
-                        {{ $prescription->patient->name }}</div>
+                        {{ $prescription->patient?->name ?? 'Unknown Patient' }}</div>
                     <div style="margin-bottom: 5px;"><span class="label">Age/DOB:</span>
-                        {{ $prescription->patient->dob ?? 'N/A' }}</div>
-                    <div><span class="label">Gender:</span> {{ $prescription->patient->gender ?? 'N/A' }}</div>
+                        {{ $prescription->patient?->dob ?? 'N/A' }}</div>
+                    <div><span class="label">Gender:</span> {{ $prescription->patient?->gender ?? 'N/A' }}</div>
                 </td>
                 <td width="50%" style="text-align: right;">
                     <div style="margin-bottom: 5px;"><span class="label">Prescription Date:</span>
-                        {{ $prescription->date->format('d M Y') }}</div>
+                        {{ $prescription->date?->format('d M Y') ?? 'N/A' }}</div>
                     <div style="margin-bottom: 5px;"><span class="label">Doctor:</span>
-                        {{ $prescription->doctor->name }}
+                        {{ $prescription->doctor?->name ?? 'Unknown Doctor' }}
                     </div>
-                    <div><span class="label">Patient ID:</span> {{ $prescription->patient->patient_code }}</div>
+                    <div><span class="label">Patient ID:</span> {{ $prescription->patient?->patient_code ?? 'N/A' }}</div>
                 </td>
             </tr>
         </table>
@@ -330,7 +330,7 @@
                 @forelse($prescription->items as $item)
                     <tr>
                         <td>{{ $loop->iteration }}</td>
-                        <td><strong>{{ $item->medicine->name }}</strong></td>
+                        <td><strong>{{ $item->medicine?->name ?? 'Unknown Medicine' }}</strong></td>
                         <td>{{ $item->timing ?: '-' }}</td>
                         <td>{{ $item->duration ?: '-' }}</td>
                         <td>{{ $item->alternateMedicine ? $item->alternateMedicine->name : '-' }}</td>
@@ -370,7 +370,7 @@
                         <div style="margin-bottom: 20px; border-bottom: 1px solid #333; width: 120px; float: right;">
                         </div>
                         <div style="clear: both;"></div>
-                        <div>{{ $prescription->doctor->name }}</div>
+                        <div>{{ $prescription->doctor?->name ?? 'Unknown Doctor' }}</div>
                     </td>
                 </tr>
             </table>
