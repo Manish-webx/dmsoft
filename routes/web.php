@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('medicines/{medicine}/force-delete', [MedicineController::class, 'forceDelete'])->name('medicines.force-delete');
     Route::resource('medicines', MedicineController::class);
     Route::post('medicines/add-stock', [MedicineController::class, 'addStock'])->name('medicines.add-stock');
+    Route::post('medicines/reduce-stock', [MedicineController::class, 'reduceStock'])->name('medicines.reduce-stock');
 
     Route::get('followups', [App\Http\Controllers\FollowupController::class, 'index'])->name('followups.index');
 });

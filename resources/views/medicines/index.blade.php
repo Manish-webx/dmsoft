@@ -105,6 +105,30 @@
     </div>
 </div>
 
+<!-- Reduce Stock Modal -->
+<div class="modal fade" id="reduceStockModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <form id="reduceStockForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Reduce Stock</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="reduce_stock_medicine_id" name="medicine_id">
+                    <div class="mb-3">
+                        <label>Quantity to Reduce *</label>
+                        <input type="number" name="quantity" class="form-control" required min="1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning w-100" id="reduceStockBtn">Reduce Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
@@ -161,6 +185,7 @@
                         } else {
                             return `
                                 <button class="btn btn-sm btn-success text-white" onclick="addStock(${data})" title="Add Stock"><i class="fas fa-plus-circle"></i></button>
+                                <button class="btn btn-sm btn-warning text-white" onclick="reduceStock(${data})" title="Reduce Stock"><i class="fas fa-minus-circle"></i></button>
                                 <button class="btn btn-sm btn-info text-white" onclick="editMedicine(${data})" title="Edit"><i class="fas fa-edit"></i></button>
                                 <button class="btn btn-sm btn-danger" onclick="deleteMedicine(${data})" title="Delete"><i class="fas fa-trash"></i></button>
                             `;
@@ -213,6 +238,34 @@
                     let errors = xhr.responseJSON.errors;
                     for (let key in errors) {
                         toastr.error(errors[key][0]);
+                    }
+                }
+            });
+        });
+
+        $('#reduceStockForm').submit(function(e) {
+            e.preventDefault();
+            $('#reduceStockBtn').prop('disabled', true).text('Reducing...');
+            
+            $.ajax({
+                url: "{{ route('medicines.reduce-stock') }}",
+                type: "POST",
+                data: $(this).serialize(),
+                success: function(response) {
+                    $('#reduceStockModal').modal('hide');
+                    toastr.success(response.success);
+                    table.ajax.reload();
+                    $('#reduceStockBtn').prop('disabled', false).text('Reduce Stock');
+                },
+                error: function(xhr) {
+                    $('#reduceStockBtn').prop('disabled', false).text('Reduce Stock');
+                    let errors = xhr.responseJSON.errors;
+                    if (errors) {
+                        for (let key in errors) {
+                            toastr.error(errors[key][0]);
+                        }
+                    } else if (xhr.responseJSON.message) {
+                        toastr.error(xhr.responseJSON.message);
                     }
                 }
             });
@@ -314,6 +367,12 @@
         $('#stockForm')[0].reset();
         $('#stock_medicine_id').val(id);
         $('#stockModal').modal('show');
+    }
+
+    function reduceStock(id) {
+        $('#reduceStockForm')[0].reset();
+        $('#reduce_stock_medicine_id').val(id);
+        $('#reduceStockModal').modal('show');
     }
 </script>
 @endpush

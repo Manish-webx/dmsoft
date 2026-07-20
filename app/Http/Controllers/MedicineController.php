@@ -90,4 +90,35 @@ class MedicineController extends Controller
 
         return response()->json(['success' => 'Stock added successfully.']);
     }
+
+    public function reduceStock(Request $request)
+    {
+        $request->validate([
+            'medicine_id' => 'required|exists:medicines,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $medicine = Medicine::findOrFail($request->medicine_id);
+        
+        if ($medicine->stock < $request->quantity) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => ['quantity' => ['Cannot reduce more than available stock.']]
+            ], 422);
+        }
+
+        DB::transaction(function () use ($request, $medicine) {
+            $medicine->decrement('stock', $request->quantity);
+
+            MedicineTransaction::create([
+                'medicine_id' => $medicine->id,
+                'type' => 'OUT',
+                'quantity' => $request->quantity,
+                'reference_type' => 'Manual Reduce',
+                'created_by' => auth()->id(),
+            ]);
+        });
+
+        return response()->json(['success' => 'Stock reduced successfully.']);
+    }
 }
