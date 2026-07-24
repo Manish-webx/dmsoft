@@ -64,10 +64,13 @@ class AppointmentController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        Appointment::updateOrCreate(
-            ['id' => $request->id],
-            $request->only('patient_id', 'doctor_id', 'appointment_date', 'status', 'notes', 'followup_date')
-        );
+        $data = $request->only('patient_id', 'doctor_id', 'appointment_date', 'status', 'notes', 'followup_date');
+        
+        if ($request->filled('id')) {
+            Appointment::findOrFail($request->id)->update($data);
+        } else {
+            Appointment::create($data);
+        }
 
         return response()->json(['success' => 'Appointment saved successfully.']);
     }

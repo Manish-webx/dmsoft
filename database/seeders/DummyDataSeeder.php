@@ -39,7 +39,18 @@ class DummyDataSeeder extends Seeder
             $doctor2->assignRole('Doctor');
         }
 
-        $doctors = [$doctor1, $doctor2];
+        $doctor3 = User::firstOrCreate(
+            ['email' => 'nitin@example.com'],
+            [
+                'name' => 'Dr. Nitin Yadav',
+                'password' => Hash::make('password')
+            ]
+        );
+        if (!$doctor3->hasRole('Doctor')) {
+            $doctor3->assignRole('Doctor');
+        }
+
+        $doctors = [$doctor1, $doctor2, $doctor3];
 
         // 2. Create Patients
         $patients = [];

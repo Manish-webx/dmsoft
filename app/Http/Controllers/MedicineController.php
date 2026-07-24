@@ -36,10 +36,11 @@ class MedicineController extends Controller
         $data = $request->only('name', 'brand', 'unit', 'price', 'items_per_strip');
         $data['status'] = $request->has('status') ? 1 : 0;
 
-        Medicine::updateOrCreate(
-            ['id' => $request->id],
-            $data
-        );
+        if ($request->filled('id')) {
+            Medicine::findOrFail($request->id)->update($data);
+        } else {
+            Medicine::create($data);
+        }
 
         return response()->json(['success' => 'Medicine saved successfully.']);
     }

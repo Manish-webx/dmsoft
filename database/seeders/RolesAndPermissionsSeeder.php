@@ -52,6 +52,15 @@ class RolesAndPermissionsSeeder extends Seeder
         );
         $doctor2->assignRole($doctorRole);
 
+        $doctor3 = User::firstOrCreate(
+            ['email' => 'nitin@example.com'],
+            [
+                'name' => 'Dr. Nitin Yadav',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $doctor3->assignRole($doctorRole);
+
         // Create a Receptionist user
         $receptionistUser = User::firstOrCreate(
             ['email' => 'receptionist@example.com'],

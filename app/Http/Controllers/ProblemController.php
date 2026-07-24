@@ -30,13 +30,16 @@ class ProblemController extends Controller
         // Filter out empty links
         $links = array_filter($request->youtube_links ?? []);
 
-        Problem::updateOrCreate(
-            ['id' => $request->id],
-            [
-                'name' => $request->name,
-                'youtube_links' => array_values($links)
-            ]
-        );
+        $data = [
+            'name' => $request->name,
+            'youtube_links' => array_values($links)
+        ];
+
+        if ($request->filled('id')) {
+            Problem::findOrFail($request->id)->update($data);
+        } else {
+            Problem::create($data);
+        }
 
         return response()->json(['success' => 'Problem saved successfully.']);
     }
