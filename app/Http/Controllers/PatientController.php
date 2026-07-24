@@ -31,15 +31,24 @@ class PatientController extends Controller
             'source' => 'nullable|string|max:255',
         ]);
 
-        $data = $request->only('name', 'phone', 'gender', 'dob', 'address', 'notes', 'source');
-        
-        if ($request->filled('id')) {
-            Patient::findOrFail($request->id)->update($data);
-        } else {
-            Patient::create($data);
-        }
+        try {
+            $data = $request->only('name', 'phone', 'gender', 'dob', 'address', 'notes', 'source');
+            
+            if ($request->filled('id')) {
+                Patient::findOrFail($request->id)->update($data);
+            } else {
+                Patient::create($data);
+            }
 
-        return response()->json(['success' => 'Patient saved successfully.']);
+            return response()->json(['success' => 'Patient saved successfully.']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred.',
+                'errors' => [
+                    'system_error' => ['Error: ' . $e->getMessage() . ' at line ' . $e->getLine()]
+                ]
+            ], 422);
+        }
     }
 
     public function edit($id)
