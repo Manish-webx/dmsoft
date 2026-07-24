@@ -21,6 +21,7 @@ class Patient extends Model
             if (empty($patient->patient_code)) {
                 $datePrefix = now()->format('Ymd');
                 $lastPatient = self::withTrashed()
+                                   ->withoutGlobalScopes()
                                    ->where('patient_code', 'like', $datePrefix . '-%')
                                    ->orderBy('patient_code', 'desc')
                                    ->first();
