@@ -20,7 +20,8 @@ class Patient extends Model
         static::creating(function ($patient) {
             if (empty($patient->patient_code)) {
                 $datePrefix = now()->format('Ymd');
-                $lastPatient = self::where('patient_code', 'like', $datePrefix . '-%')
+                $lastPatient = self::withTrashed()
+                                   ->where('patient_code', 'like', $datePrefix . '-%')
                                    ->orderBy('patient_code', 'desc')
                                    ->first();
 
