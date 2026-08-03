@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dermatales - Dashboard</title>
-    <meta name="description" content="Dermatales Clinic Management System Dashboard. Manage clinic workflow, patients, and records.">
+    <meta name="description"
+        content="Dermatales Clinic Management System Dashboard. Manage clinic workflow, patients, and records.">
 
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -282,12 +283,7 @@
                     <i class="fas fa-home"></i> Dashboard
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}"
-                    href="{{ route('appointments.index') }}">
-                    <i class="fas fa-calendar-check"></i> Appointments
-                </a>
-            </li>
+
             <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('patients.*') ? 'active' : '' }}"
                     href="{{ route('patients.index') }}">
@@ -295,9 +291,21 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('appointments.*') ? 'active' : '' }}"
+                    href="{{ route('appointments.index') }}">
+                    <i class="fas fa-calendar-check"></i> Appointments
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('prescriptions.*') ? 'active' : '' }}"
                     href="{{ route('prescriptions.index') }}">
                     <i class="fas fa-prescription-bottle-alt"></i> Prescriptions
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('prescription-templates.*') ? 'active' : '' }}"
+                    href="{{ route('prescription-templates.index') }}">
+                    <i class="fas fa-file-medical-alt"></i> Templates
                 </a>
             </li>
             <li class="nav-item">
@@ -337,29 +345,31 @@
             <div class="d-flex align-items-center">
                 <form action="{{ route('set-location') }}" method="POST" class="me-3 mb-0" id="locationForm">
                     @csrf
-                    <select name="location" class="form-select form-select-sm" onchange="document.getElementById('locationForm').submit();" style="border-radius: 20px; font-weight: 500; border-color: #e2e8f0; min-width: 140px;">
+                    <select name="location" class="form-select form-select-sm"
+                        onchange="document.getElementById('locationForm').submit();"
+                        style="border-radius: 20px; font-weight: 500; border-color: #e2e8f0; min-width: 140px;">
                         <option value="Gurgaon" {{ session('current_location', 'Gurgaon') == 'Gurgaon' ? 'selected' : '' }}>Gurgaon</option>
                         <option value="Patel Nagar" {{ session('current_location', 'Gurgaon') == 'Patel Nagar' ? 'selected' : '' }}>Patel Nagar</option>
                     </select>
                 </form>
                 <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name ?? 'User' }}
-                </button>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
-                    <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">Logout</button>
-                        </form>
-                    </li>
-                </ul>
-            </div>
+                    <button class="btn btn-light dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name ?? 'User' }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
 
@@ -368,57 +378,76 @@
     </div>
 
     @if(!session()->has('current_location'))
-    <!-- Initial Location Selection Popup Modal -->
-    <div class="modal fade" id="locationPopupModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="locationPopupModalLabel" aria-hidden="true" style="z-index: 1060;">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden; background: #fff;">
-                <div class="modal-header bg-white border-0 pt-4 pb-2 px-4 justify-content-center flex-column text-center">
-                    <div class="mb-2">
-                        <img src="https://www.dermatales.com/images/logo.png" alt="Dermatales Logo" style="height: 48px; width: auto;">
-                    </div>
-                    <h4 class="modal-title fw-bold text-dark mt-2" id="locationPopupModalLabel" style="font-family: 'Playfair Display', serif; color: var(--brand-navy);">Select Clinic Location</h4>
-                    <p class="text-muted small mb-0 mt-1">Please select the clinic location where you are operating today before proceeding further.</p>
-                </div>
-                <div class="modal-body p-4 pt-3">
-                    <form action="{{ route('set-location') }}" method="POST" id="popupLocationForm">
-                        @csrf
-                        <input type="hidden" name="location" id="selectedLocationInput" value="">
-                        
-                        <div class="row g-3 mb-4">
-                            <div class="col-6">
-                                <div class="location-select-card h-100" onclick="selectPopupLocation('Gurgaon', this)" ondblclick="selectAndSubmitLocation('Gurgaon')">
-                                    <div class="check-indicator"><i class="fas fa-check"></i></div>
-                                    <div class="mb-3 mt-2">
-                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 58px; height: 58px; background-color: rgba(183, 110, 121, 0.1); color: var(--brand-rose);">
-                                            <i class="fas fa-clinic-medical fa-xl"></i>
-                                        </div>
-                                    </div>
-                                    <h6 class="fw-bold mb-1" style="color: var(--brand-navy); font-size: 1.15rem;">Gurgaon</h6>
-                                    <p class="text-muted mb-0" style="font-size: 0.8rem;">Main Laser & Aesthetics Center</p>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="location-select-card h-100" onclick="selectPopupLocation('Patel Nagar', this)" ondblclick="selectAndSubmitLocation('Patel Nagar')">
-                                    <div class="check-indicator"><i class="fas fa-check"></i></div>
-                                    <div class="mb-3 mt-2">
-                                        <div class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 58px; height: 58px; background-color: rgba(27, 42, 74, 0.1); color: var(--brand-navy);">
-                                            <i class="fas fa-hospital fa-xl"></i>
-                                        </div>
-                                    </div>
-                                    <h6 class="fw-bold mb-1" style="color: var(--brand-navy); font-size: 1.15rem;">Patel Nagar</h6>
-                                    <p class="text-muted mb-0" style="font-size: 0.8rem;">Consultation & Treatment Clinic</p>
-                                </div>
-                            </div>
+        <!-- Initial Location Selection Popup Modal -->
+        <div class="modal fade" id="locationPopupModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="locationPopupModalLabel" aria-hidden="true" style="z-index: 1060;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg"
+                    style="border-radius: 20px; overflow: hidden; background: #fff;">
+                    <div
+                        class="modal-header bg-white border-0 pt-4 pb-2 px-4 justify-content-center flex-column text-center">
+                        <div class="mb-2">
+                            <img src="https://www.dermatales.com/images/logo.png" alt="Dermatales Logo"
+                                style="height: 48px; width: auto;">
                         </div>
+                        <h4 class="modal-title fw-bold text-dark mt-2" id="locationPopupModalLabel"
+                            style="font-family: 'Playfair Display', serif; color: var(--brand-navy);">Select Clinic Location
+                        </h4>
+                        <p class="text-muted small mb-0 mt-1">Please select the clinic location where you are operating
+                            today before proceeding further.</p>
+                    </div>
+                    <div class="modal-body p-4 pt-3">
+                        <form action="{{ route('set-location') }}" method="POST" id="popupLocationForm">
+                            @csrf
+                            <input type="hidden" name="location" id="selectedLocationInput" value="">
 
-                        <button type="submit" id="confirmLocationBtn" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm" style="border-radius: 14px; opacity: 0.65; pointer-events: none; transition: all 0.3s;" disabled>
-                            Select Location to Continue <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
-                    </form>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <div class="location-select-card h-100" onclick="selectPopupLocation('Gurgaon', this)"
+                                        ondblclick="selectAndSubmitLocation('Gurgaon')">
+                                        <div class="check-indicator"><i class="fas fa-check"></i></div>
+                                        <div class="mb-3 mt-2">
+                                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle"
+                                                style="width: 58px; height: 58px; background-color: rgba(183, 110, 121, 0.1); color: var(--brand-rose);">
+                                                <i class="fas fa-clinic-medical fa-xl"></i>
+                                            </div>
+                                        </div>
+                                        <h6 class="fw-bold mb-1" style="color: var(--brand-navy); font-size: 1.15rem;">
+                                            Gurgaon</h6>
+                                        <p class="text-muted mb-0" style="font-size: 0.8rem;">Main Laser & Aesthetics Center
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="location-select-card h-100"
+                                        onclick="selectPopupLocation('Patel Nagar', this)"
+                                        ondblclick="selectAndSubmitLocation('Patel Nagar')">
+                                        <div class="check-indicator"><i class="fas fa-check"></i></div>
+                                        <div class="mb-3 mt-2">
+                                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle"
+                                                style="width: 58px; height: 58px; background-color: rgba(27, 42, 74, 0.1); color: var(--brand-navy);">
+                                                <i class="fas fa-hospital fa-xl"></i>
+                                            </div>
+                                        </div>
+                                        <h6 class="fw-bold mb-1" style="color: var(--brand-navy); font-size: 1.15rem;">Patel
+                                            Nagar</h6>
+                                        <p class="text-muted mb-0" style="font-size: 0.8rem;">Consultation & Treatment
+                                            Clinic</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="confirmLocationBtn"
+                                class="btn btn-primary w-100 py-2 fw-semibold shadow-sm"
+                                style="border-radius: 14px; opacity: 0.65; pointer-events: none; transition: all 0.3s;"
+                                disabled>
+                                Select Location to Continue <i class="fas fa-arrow-right ms-2"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
 
     <!-- jQuery -->
@@ -476,39 +505,39 @@
     </script>
 
     @if(!session()->has('current_location'))
-    <script>
-        function selectPopupLocation(locationName, element) {
-            document.getElementById('selectedLocationInput').value = locationName;
-            
-            document.querySelectorAll('.location-select-card').forEach(card => {
-                card.classList.remove('active');
-            });
-            
-            element.classList.add('active');
-            
-            const confirmBtn = document.getElementById('confirmLocationBtn');
-            confirmBtn.disabled = false;
-            confirmBtn.style.opacity = '1';
-            confirmBtn.style.pointerEvents = 'auto';
-            confirmBtn.innerHTML = `Continue with ${locationName} <i class="fas fa-arrow-right ms-2"></i>`;
-        }
+        <script>
+                function selectPopupLocation(locationName, element) {
+                    document.getElementById('selectedLocationInput').value = locationName;
 
-        function selectAndSubmitLocation(locationName) {
-            document.getElementById('selectedLocationInput').value = locationName;
-            document.getElementById('popupLocationForm').submit();
-        }
+                    document.querySelectorAll('.location-select-card').forEach(card => {
+                        card.classList.remove('active');
+                    });
 
-        document.addEventListener("DOMContentLoaded", function() {
-            var locationPopupModalElement = document.getElementById('locationPopupModal');
-            if (locationPopupModalElement && typeof bootstrap !== 'undefined') {
-                var locationPopupModal = new bootstrap.Modal(locationPopupModalElement, {
-                    backdrop: 'static',
-                    keyboard: false
-                });
-                locationPopupModal.show();
+                    element.classList.add('active');
+
+                    const confirmBtn = document.getElementById('confirmLocationBtn');
+                    confirmBtn.disabled = false;
+                    confirmBtn.style.opacity = '1';
+                    confirmBtn.style.pointerEvents = 'auto';
+                    confirmBtn.innerHTML = `Continue with ${locationName} <i class="fas fa-arrow-right ms-2"></i>`;
+                }
+
+            function selectAndSubmitLocation(locationName) {
+                document.getElementById('selectedLocationInput').value = locationName;
+                document.getElementById('popupLocationForm').submit();
             }
-        });
-    </script>
+
+            document.addEventListener("DOMContentLoaded", function () {
+                var locationPopupModalElement = document.getElementById('locationPopupModal');
+                if (locationPopupModalElement && typeof bootstrap !== 'undefined') {
+                    var locationPopupModal = new bootstrap.Modal(locationPopupModalElement, {
+                        backdrop: 'static',
+                        keyboard: false
+                    });
+                    locationPopupModal.show();
+                }
+            });
+        </script>
     @endif
 
     @stack('scripts')

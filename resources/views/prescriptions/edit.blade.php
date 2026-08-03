@@ -4,6 +4,15 @@
 
     <form id="prescriptionForm">
         @method('PUT')
+        <div class="row mb-3">
+            <div class="col-md-12 d-flex justify-content-end align-items-center">
+                <div style="width: 300px;">
+                    <select id="loadTemplateSelect" class="form-select select2">
+                        <option value="">-- Load from Template --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
         <div class="row">
             <!-- Patient Details -->
             <div class="col-md-3">
@@ -204,8 +213,11 @@
                         </div>
                     </div>
                     <div class="card-footer bg-white text-end">
+                        <button type="button" class="btn btn-outline-primary me-2" id="saveTemplateBtn">
+                            <i class="fas fa-save"></i> Save as Template
+                        </button>
                         <button type="submit" class="btn btn-primary btn-lg" id="saveBtn">
-                            <i class="fas fa-save"></i> Update Prescription
+                            <i class="fas fa-check"></i> Update Prescription
                         </button>
                     </div>
                 </div>
@@ -213,6 +225,28 @@
             </div>
         </div>
     </form>
+
+    <!-- Save Template Modal -->
+    <div class="modal fade" id="saveTemplateModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Save as Prescription Template</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label>Template Name *</label>
+                        <input type="text" id="templateNameInput" class="form-control" placeholder="e.g., Fever, Diabetes Follow-up" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="confirmSaveTemplateBtn">Save Template</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
 @endsection
 
@@ -264,6 +298,22 @@
                     $('#due_amount').val(due.toFixed(2));
                 }
             }
+
+            // Fetch and populate templates dropdown
+            function loadTemplatesDropdown() {
+                $.ajax({
+                    url: "{{ route('prescription-templates.all') }}",
+                    type: "GET",
+                    success: function(response) {
+                        let options = '<option value="">-- Load from Template --</option>';
+                        response.forEach(function(template) {
+                            options += `<option value="${template.id}">${template.name}</option>`;
+                        });
+                        $('#loadTemplateSelect').html(options).trigger('change.select2');
+                    }
+                });
+            }
+            loadTemplatesDropdown();
 
             $('#addMedicineBtn').click(function () {
                 rowCount++;
@@ -393,6 +443,142 @@
 
             $('#problemSelect').change(function () {
                 populateYoutubeLinks();
+            });
+
+            // Handle Load Template
+            $('#loadTemplateSelect').change(function() {
+                let templateId = $(this).val();
+                if(!templateId) return;
+
+                $.ajax({
+                    url: `/prescription-templates/${templateId}`,
+                    type: "GET",
+                    success: function(template) {
+                        if(template.problem_id) {
+                            $('#problemSelect').val(template.problem_id).trigger('change');
+                        } else {
+                            $('#problemSelect').val('').trigger('change');
+                        }
+
+                        let links = template.youtube_links || [];
+                        let html = '';
+                        links.forEach(function (link) {
+                            html += `<option value="${link}" selected>${link}</option>`;
+                        });
+                        $('#youtubeLinkSelect').html(html).trigger('change');
+
+                        $('textarea[name="hopi"]').val(template.hopi || '');
+                        $('textarea[name="notes"]').val(template.notes || '');
+
+                        $('#medicineList').empty();
+                        
+                        if(template.items && template.items.length > 0) {
+                            $('#emptyState').hide();
+                            $('#revenueSection').show();
+
+                            template.items.forEach(function(item) {
+                                rowCount++;
+                                
+                                let row = `
+                                    <tr id="row-${rowCount}">
+                                        <td>
+                                            <select name="medicines[]" class="form-select select2-med select2-primary w-100" required>
+                                                <option value="">Search...</option>
+                                                @foreach($medicines as $med)
+                                                    <option value="{{ $med->id }}" data-price="{{ $med->price }}" data-stock="{{ $med->stock }}">{{ $med->name }} (Stock: {{ $med->stock }}) - ₹{{ $med->price }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="alternate_medicines[]" class="form-select select2-med select2-alt w-100">
+                                                <option value="">None</option>
+                                                @foreach($medicines as $med)
+                                                    <option value="{{ $med->id }}">{{ $med->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td><input type="number" name="quantities[]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty" value="${item.quantity}"></td>
+                                        <td>
+                                            <select name="timings[]" class="form-select form-select-sm select2-timing w-100">
+                                                <option value="Before food" ${item.timing == 'Before food' ? 'selected' : ''}>Before food</option>
+                                                <option value="After food" ${item.timing == 'After food' ? 'selected' : ''}>After food</option>
+                                                <option value="Morning" ${item.timing == 'Morning' ? 'selected' : ''}>Morning</option>
+                                                <option value="Afternoon" ${item.timing == 'Afternoon' ? 'selected' : ''}>Afternoon</option>
+                                                <option value="Night" ${item.timing == 'Night' ? 'selected' : ''}>Night</option>
+                                                <option value="Empty stomach" ${item.timing == 'Empty stomach' ? 'selected' : ''}>Empty stomach</option>
+                                                <option value="SOS" ${item.timing == 'SOS' ? 'selected' : ''}>SOS</option>
+                                            </select>
+                                            <input type="hidden" name="instructions[]" value="${item.instructions || ''}">
+                                        </td>
+                                        <td><input type="text" name="durations[]" class="form-control form-control-sm" placeholder="e.g. 5 days" value="${item.duration || ''}"></td>
+                                        <td><textarea name="medicine_notes[]" class="form-control form-control-sm" rows="1">${item.medicine_note || ''}</textarea></td>
+                                        <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-btn"><i class="fas fa-times"></i></button></td>
+                                    </tr>
+                                `;
+                                
+                                $('#medicineList').append(row);
+                                
+                                $(`#row-${rowCount} select[name="medicines[]"]`).val(item.medicine_id).select2({ theme: 'bootstrap-5' });
+                                $(`#row-${rowCount} select[name="alternate_medicines[]"]`).val(item.alternate_medicine_id || '').select2({ theme: 'bootstrap-5' });
+                                $(`#row-${rowCount} .select2-timing`).select2({ theme: 'bootstrap-5', tags: true });
+                            });
+                            calculateRevenue();
+                        }
+                    },
+                    error: function(xhr) {
+                        toastr.error('Failed to load template.');
+                    }
+                });
+            });
+
+            // Handle Save as Template
+            let saveTemplateModal = new bootstrap.Modal(document.getElementById('saveTemplateModal'));
+            
+            $('#saveTemplateBtn').click(function() {
+                $('#templateNameInput').val('');
+                saveTemplateModal.show();
+            });
+
+            $('#confirmSaveTemplateBtn').click(function() {
+                let tName = $('#templateNameInput').val();
+                if(!tName) {
+                    toastr.warning('Please enter a template name.');
+                    return;
+                }
+                
+                let formData = $('#prescriptionForm').serializeArray();
+                formData.push({name: 'template_name', value: tName});
+                
+                // Remove the _method PUT for template save
+                formData = formData.filter(item => item.name !== '_method');
+
+                $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+                let btn = $(this);
+
+                $.ajax({
+                    url: "{{ route('prescription-templates.store') }}",
+                    type: "POST",
+                    data: $.param(formData),
+                    success: function(response) {
+                        toastr.success(response.success);
+                        saveTemplateModal.hide();
+                        btn.prop('disabled', false).html('Save Template');
+                        loadTemplatesDropdown();
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).html('Save Template');
+                        if (xhr.status === 422 && xhr.responseJSON.error) {
+                            toastr.error(xhr.responseJSON.error);
+                        } else if (xhr.responseJSON.errors) {
+                            let errors = xhr.responseJSON.errors;
+                            for (let key in errors) {
+                                toastr.error(errors[key][0]);
+                            }
+                        } else {
+                            toastr.error('Failed to save template.');
+                        }
+                    }
+                });
             });
 
             // Form Submit

@@ -73,12 +73,15 @@
                             <select name="source" id="source" class="form-select select2-source" style="width: 100%;">
                                 <option value="">Select...</option>
                                 <option value="Facebook">Facebook</option>
-                                <option value="Google">Google</option>
+                                <option value="GMB">GMB</option>
+                                <option value="Website">Website</option>
+                                <option value="Google Ads">Google Ads</option>
                                 <option value="Instagram">Instagram</option>
+                                <option value="Twitter">Twitter</option>
                                 <option value="Youtube">Youtube</option>
                                 <option value="Walk In">Walk In</option>
                                 <option value="Referral">Referral</option>
-                                <option value="Templates">Templates</option>
+                                <option value="Pamphlet">Pamphlet</option>
                                 <option value="Other">Other</option>
                             </select>
                             <small class="text-muted">Select from list or type a custom option</small>
@@ -140,18 +143,19 @@
                             let isTrashed = "{{ request('trashed', 0) }}";
                             if (isTrashed == "1") {
                                 return `
-                                            <button class="btn btn-sm btn-success" onclick="restorePatient(${data})"><i class="fas fa-undo"></i> Restore</button>
-                                            <button class="btn btn-sm btn-danger" onclick="forceDeletePatient(${data})"><i class="fas fa-times"></i> Delete Permanently</button>
-                                        `;
+                                                <button class="btn btn-sm btn-success" onclick="restorePatient(${data})"><i class="fas fa-undo"></i> Restore</button>
+                                                <button class="btn btn-sm btn-danger" onclick="forceDeletePatient(${data})"><i class="fas fa-times"></i> Delete Permanently</button>
+                                            `;
                             } else {
                                 return `
-                                            <button class="btn btn-sm btn-info text-white" onclick="editPatient(${data})"><i class="fas fa-edit"></i></button>
-                                            <button class="btn btn-sm btn-danger" onclick="deletePatient(${data})"><i class="fas fa-trash"></i></button>
-                                        `;
+                                                <button class="btn btn-sm btn-info text-white" onclick="editPatient(${data})"><i class="fas fa-edit"></i></button>
+                                                <button class="btn btn-sm btn-danger" onclick="deletePatient(${data})"><i class="fas fa-trash"></i></button>
+                                            `;
                             }
                         }
                     }
-                ]
+                ],
+                order: [[6, 'desc']]
             });
 
             $('#patientForm').submit(function (e) {

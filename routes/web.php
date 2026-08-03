@@ -38,6 +38,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('prescriptions/{prescription}/restore', [PrescriptionController::class, 'restore'])->name('prescriptions.restore');
     Route::delete('prescriptions/{prescription}/force-delete', [PrescriptionController::class, 'forceDelete'])->name('prescriptions.force-delete');
     Route::resource('prescriptions', PrescriptionController::class);
+
+    Route::get('prescription-templates/all', [App\Http\Controllers\PrescriptionTemplateController::class, 'allTemplates'])->name('prescription-templates.all');
+    Route::post('prescription-templates/{template}/duplicate', [App\Http\Controllers\PrescriptionTemplateController::class, 'duplicate'])->name('prescription-templates.duplicate');
+    Route::resource('prescription-templates', App\Http\Controllers\PrescriptionTemplateController::class);
+
     Route::get('revenues', [App\Http\Controllers\RevenueController::class, 'index'])->name('revenues.index');
 
     Route::post('medicines/{medicine}/restore', [MedicineController::class, 'restore'])->name('medicines.restore');
