@@ -4,7 +4,7 @@
 
     <form id="templateForm">
         <div class="row">
-            <div class="col-md-3">
+            <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header bg-light">
                         <i class="fas fa-file-alt text-primary"></i> Template Details
@@ -18,7 +18,7 @@
                 </div>
             </div>
 
-            <div class="col-md-9">
+            <div class="col-md-12">
                 <div class="card mb-4">
                     <div class="card-header bg-light d-flex justify-content-between align-items-center">
                         <span><i class="fas fa-pills text-success"></i> Template Medicines</span>
@@ -30,12 +30,14 @@
                         <table class="table table-hover mb-0" id="medicineTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th width="20%">Primary Medicine</th>
-                                    <th width="20%">Alt Medicine</th>
-                                    <th width="10%">Qty</th>
-                                    <th width="12%">Timing</th>
+                                    <th width="15%">Medicine</th>
+                                    <th width="15%">Alt Medicine</th>
+                                    <th width="10%">Time</th>
+                                    <th width="12%">When</th>
+                                    <th width="10%">Frequency</th>
                                     <th width="10%">Duration</th>
-                                    <th width="23%">Medicine Note</th>
+                                    <th width="15%">Medicine Note</th>
+                                    <th width="8%">Qty</th>
                                     <th width="5%"></th>
                                 </tr>
                             </thead>
@@ -127,25 +129,58 @@
                             </select>
                         </td>
                         <td>
-                            <input type="number" name="quantities[]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty">
-                        </td>
-                        <td>
-                            <select name="timings[]" class="form-select form-select-sm select2-timing w-100">
-                                <option value="Before food">Before food</option>
-                                <option value="After food">After food</option>
+                            <select name="times[]" class="form-select select2-custom form-select-sm w-100">
+                                <option value="">Select...</option>
                                 <option value="Morning">Morning</option>
                                 <option value="Afternoon">Afternoon</option>
+                                <option value="Evening">Evening</option>
                                 <option value="Night">Night</option>
-                                <option value="Empty stomach">Empty stomach</option>
-                                <option value="SOS">SOS</option>
                             </select>
-                            <input type="hidden" name="instructions[]" value="">
                         </td>
                         <td>
-                            <input type="text" name="durations[]" class="form-control form-control-sm" placeholder="e.g. 5 days">
+                            <select name="whens[]" class="form-select select2-custom form-select-sm w-100">
+                                <option value="">Select...</option>
+                                <option value="Before Food">Before Food</option>
+                                <option value="After Food">After Food</option>
+                                <option value="Empty stomach">Empty stomach</option>
+                                <option value="With Food">With Food</option>
+                                <option value="At bedtime">At bedtime</option>
+                                <option value="After bath">After bath</option>
+                                <option value="After Facewash">After Facewash</option>
+                                <option value="Overnight">Overnight</option>
+                                <option value="After mouthwash">After mouthwash</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="frequencies[]" class="form-select select2-custom form-select-sm w-100">
+                                <option value="">Select...</option>
+                                <option value="Daily">Daily</option>
+                                <option value="Once weekly">Once weekly</option>
+                                <option value="Twice weekly">Twice weekly</option>
+                                <option value="Thrice weekly">Thrice weekly</option>
+                                <option value="4 times weekly">4 times weekly</option>
+                                <option value="5 times daily">5 times daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Fortnightly">Fortnightly</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="d-flex">
+                                <input type="number" name="durations[]" class="form-control form-control-sm me-1" placeholder="1" min="1">
+                                <select name="duration_types[]" class="form-select form-select-sm" style="min-width: 70px;">
+                                    <option value="Days">Days</option>
+                                    <option value="Weeks">Weeks</option>
+                                    <option value="Months">Months</option>
+                                </select>
+                            </div>
                         </td>
                         <td>
                             <textarea name="medicine_notes[]" class="form-control form-control-sm" rows="1" placeholder="e.g. Take with warm water"></textarea>
+                        </td>
+                        <td>
+                            <input type="number" name="quantities[]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty">
+                            <input type="hidden" name="timings[]" value="">
+                            <input type="hidden" name="instructions[]" value="">
                         </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-sm btn-danger remove-btn"><i class="fas fa-times"></i></button>
@@ -156,7 +191,15 @@
                 $('#medicineList').append(row);
 
                 $(`#row-${rowCount} .select2-med`).select2({ theme: 'bootstrap-5' });
-                $(`#row-${rowCount} .select2-timing`).select2({ theme: 'bootstrap-5', tags: true });
+                $(`#row-${rowCount} .select2-timing`).select2({
+                    theme: 'bootstrap-5',
+                    tags: true
+                });
+
+                $(`#row-${rowCount} .select2-custom`).select2({
+                    theme: 'bootstrap-5',
+                    tags: true
+                });
             });
 
             $(document).on('click', '.remove-btn', function () {

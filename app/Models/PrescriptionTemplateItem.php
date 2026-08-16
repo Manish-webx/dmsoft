@@ -11,8 +11,12 @@ class PrescriptionTemplateItem extends Model
         'medicine_id',
         'alternate_medicine_id',
         'quantity',
+        'time',
+        'when',
+        'frequency',
         'timing',
         'duration',
+        'duration_type',
         'instructions',
         'medicine_note',
     ];

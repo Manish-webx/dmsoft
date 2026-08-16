@@ -319,10 +319,13 @@
             <thead>
                 <tr>
                     <th width="5%">#</th>
-                    <th width="25%">Medicine Name</th>
-                    <th width="15%">Timing</th>
-                    <th width="20%">Duration</th>
-                    <th width="25%">Alternate Medicine</th>
+                    <th width="15%">Medicine Name</th>
+                    <th width="15%">Alternate Medicine</th>
+                    <th width="10%">Time</th>
+                    <th width="10%">When</th>
+                    <th width="10%">Frequency</th>
+                    <th width="10%">Duration</th>
+                    <th width="15%">Medicine Note</th>
                     <th width="10%">Qty</th>
                 </tr>
             </thead>
@@ -331,20 +334,17 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td><strong>{{ $item->medicine?->name ?? 'Unknown Medicine' }}</strong></td>
-                        <td>{{ $item->timing ?: '-' }}</td>
-                        <td>{{ $item->duration ?: '-' }}</td>
                         <td>{{ $item->alternateMedicine ? $item->alternateMedicine->name : '-' }}</td>
+                        <td>{{ $item->time ?: '-' }}</td>
+                        <td>{{ $item->when ?: '-' }}</td>
+                        <td>{{ $item->frequency ?: '-' }}</td>
+                        <td>{{ $item->duration ? $item->duration . ' ' . $item->duration_type : '-' }}</td>
+                        <td>{{ $item->medicine_note ?: '-' }}</td>
                         <td>{{ $item->quantity }}</td>
                     </tr>
-                    @if($item->medicine_note)
-                        <tr class="instruction-row">
-                            <td class="instruction-label">Note</td>
-                            <td colspan="5"><em>{{ $item->medicine_note }}</em></td>
-                        </tr>
-                    @endif
                 @empty
                     <tr>
-                        <td colspan="6" style="text-align: center;">No medicines prescribed.</td>
+                        <td colspan="9" style="text-align: center;">No medicines prescribed.</td>
                     </tr>
                 @endforelse
             </tbody>
