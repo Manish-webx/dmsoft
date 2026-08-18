@@ -101,7 +101,7 @@
                                 @foreach($prescription->items as $index => $item)
                                     <tr id="row-{{ $index }}">
                                         <td>
-                                            <select name="medicines[]" class="form-select select2-med select2-primary w-100"
+                                            <select name="medicines[{{ $index }}]" class="form-select select2-med select2-primary w-100"
                                                 required>
                                                 <option value="">Search...</option>
                                                 @foreach($medicines as $med)
@@ -113,7 +113,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="alternate_medicines[]"
+                                            <select name="alternate_medicines[{{ $index }}]"
                                                 class="form-select select2-med select2-alt w-100">
                                                 <option value="">None</option>
                                                 @foreach($medicines as $med)
@@ -124,54 +124,60 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="times[]" class="form-select select2-custom form-select-sm w-100">
-                                                <option value="" {{ !$item->time ? 'selected' : '' }}>Select...</option>
-                                                <option value="Morning" {{ $item->time == 'Morning' ? 'selected' : '' }}>Morning</option>
-                                                <option value="Afternoon" {{ $item->time == 'Afternoon' ? 'selected' : '' }}>Afternoon</option>
-                                                <option value="Evening" {{ $item->time == 'Evening' ? 'selected' : '' }}>Evening</option>
-                                                <option value="Night" {{ $item->time == 'Night' ? 'selected' : '' }}>Night</option>
-                                                @if($item->time && !in_array($item->time, ['Morning', 'Afternoon', 'Evening', 'Night']))
-                                                    <option value="{{ $item->time }}" selected>{{ $item->time }}</option>
-                                                @endif
+                                            @php $selectedTimes = $item->time ? array_map('trim', explode(',', $item->time)) : []; @endphp
+                                            <select name="times[{{ $index }}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
+                                                <option value="Morning" {{ in_array('Morning', $selectedTimes) ? 'selected' : '' }}>Morning</option>
+                                                <option value="Afternoon" {{ in_array('Afternoon', $selectedTimes) ? 'selected' : '' }}>Afternoon</option>
+                                                <option value="Evening" {{ in_array('Evening', $selectedTimes) ? 'selected' : '' }}>Evening</option>
+                                                <option value="Night" {{ in_array('Night', $selectedTimes) ? 'selected' : '' }}>Night</option>
+                                                @foreach(array_diff($selectedTimes, ['Morning', 'Afternoon', 'Evening', 'Night']) as $custom)
+                                                    @if(trim($custom) !== '')
+                                                        <option value="{{ $custom }}" selected>{{ $custom }}</option>
+                                                    @endif
+                                                @endforeach
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="whens[]" class="form-select select2-custom form-select-sm w-100">
-                                                <option value="" {{ !$item->when ? 'selected' : '' }}>Select...</option>
-                                                <option value="Before Food" {{ $item->when == 'Before Food' ? 'selected' : '' }}>Before Food</option>
-                                                <option value="After Food" {{ $item->when == 'After Food' ? 'selected' : '' }}>After Food</option>
-                                                <option value="Empty stomach" {{ $item->when == 'Empty stomach' ? 'selected' : '' }}>Empty stomach</option>
-                                                <option value="With Food" {{ $item->when == 'With Food' ? 'selected' : '' }}>With Food</option>
-                                                <option value="At bedtime" {{ $item->when == 'At bedtime' ? 'selected' : '' }}>At bedtime</option>
-                                                <option value="After bath" {{ $item->when == 'After bath' ? 'selected' : '' }}>After bath</option>
-                                                <option value="After Facewash" {{ $item->when == 'After Facewash' ? 'selected' : '' }}>After Facewash</option>
-                                                <option value="Overnight" {{ $item->when == 'Overnight' ? 'selected' : '' }}>Overnight</option>
-                                                <option value="After mouthwash" {{ $item->when == 'After mouthwash' ? 'selected' : '' }}>After mouthwash</option>
-                                                @if($item->when && !in_array($item->when, ['Before Food', 'After Food', 'Empty stomach', 'With Food', 'At bedtime', 'After bath', 'After Facewash', 'Overnight', 'After mouthwash']))
-                                                    <option value="{{ $item->when }}" selected>{{ $item->when }}</option>
-                                                @endif
+                                            @php $selectedWhens = $item->when ? array_map('trim', explode(',', $item->when)) : []; @endphp
+                                            <select name="whens[{{ $index }}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
+                                                <option value="Before Food" {{ in_array('Before Food', $selectedWhens) ? 'selected' : '' }}>Before Food</option>
+                                                <option value="After Food" {{ in_array('After Food', $selectedWhens) ? 'selected' : '' }}>After Food</option>
+                                                <option value="Empty stomach" {{ in_array('Empty stomach', $selectedWhens) ? 'selected' : '' }}>Empty stomach</option>
+                                                <option value="With Food" {{ in_array('With Food', $selectedWhens) ? 'selected' : '' }}>With Food</option>
+                                                <option value="At bedtime" {{ in_array('At bedtime', $selectedWhens) ? 'selected' : '' }}>At bedtime</option>
+                                                <option value="After bath" {{ in_array('After bath', $selectedWhens) ? 'selected' : '' }}>After bath</option>
+                                                <option value="After Facewash" {{ in_array('After Facewash', $selectedWhens) ? 'selected' : '' }}>After Facewash</option>
+                                                <option value="Overnight" {{ in_array('Overnight', $selectedWhens) ? 'selected' : '' }}>Overnight</option>
+                                                <option value="After mouthwash" {{ in_array('After mouthwash', $selectedWhens) ? 'selected' : '' }}>After mouthwash</option>
+                                                @foreach(array_diff($selectedWhens, ['Before Food', 'After Food', 'Empty stomach', 'With Food', 'At bedtime', 'After bath', 'After Facewash', 'Overnight', 'After mouthwash']) as $custom)
+                                                    @if(trim($custom) !== '')
+                                                        <option value="{{ $custom }}" selected>{{ $custom }}</option>
+                                                    @endif
+                                                @endforeach
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="frequencies[]" class="form-select select2-custom form-select-sm w-100">
-                                                <option value="" {{ !$item->frequency ? 'selected' : '' }}>Select...</option>
-                                                <option value="Daily" {{ $item->frequency == 'Daily' ? 'selected' : '' }}>Daily</option>
-                                                <option value="Once weekly" {{ $item->frequency == 'Once weekly' ? 'selected' : '' }}>Once weekly</option>
-                                                <option value="Twice weekly" {{ $item->frequency == 'Twice weekly' ? 'selected' : '' }}>Twice weekly</option>
-                                                <option value="Thrice weekly" {{ $item->frequency == 'Thrice weekly' ? 'selected' : '' }}>Thrice weekly</option>
-                                                <option value="4 times weekly" {{ $item->frequency == '4 times weekly' ? 'selected' : '' }}>4 times weekly</option>
-                                                <option value="5 times daily" {{ $item->frequency == '5 times daily' ? 'selected' : '' }}>5 times daily</option>
-                                                <option value="Weekly" {{ $item->frequency == 'Weekly' ? 'selected' : '' }}>Weekly</option>
-                                                <option value="Fortnightly" {{ $item->frequency == 'Fortnightly' ? 'selected' : '' }}>Fortnightly</option>
-                                                @if($item->frequency && !in_array($item->frequency, ['Daily', 'Once weekly', 'Twice weekly', 'Thrice weekly', '4 times weekly', '5 times daily', 'Weekly', 'Fortnightly']))
-                                                    <option value="{{ $item->frequency }}" selected>{{ $item->frequency }}</option>
-                                                @endif
+                                            @php $selectedFreqs = $item->frequency ? array_map('trim', explode(',', $item->frequency)) : []; @endphp
+                                            <select name="frequencies[{{ $index }}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
+                                                <option value="Daily" {{ in_array('Daily', $selectedFreqs) ? 'selected' : '' }}>Daily</option>
+                                                <option value="Once weekly" {{ in_array('Once weekly', $selectedFreqs) ? 'selected' : '' }}>Once weekly</option>
+                                                <option value="Twice weekly" {{ in_array('Twice weekly', $selectedFreqs) ? 'selected' : '' }}>Twice weekly</option>
+                                                <option value="Thrice weekly" {{ in_array('Thrice weekly', $selectedFreqs) ? 'selected' : '' }}>Thrice weekly</option>
+                                                <option value="4 times weekly" {{ in_array('4 times weekly', $selectedFreqs) ? 'selected' : '' }}>4 times weekly</option>
+                                                <option value="5 times daily" {{ in_array('5 times daily', $selectedFreqs) ? 'selected' : '' }}>5 times daily</option>
+                                                <option value="Weekly" {{ in_array('Weekly', $selectedFreqs) ? 'selected' : '' }}>Weekly</option>
+                                                <option value="Fortnightly" {{ in_array('Fortnightly', $selectedFreqs) ? 'selected' : '' }}>Fortnightly</option>
+                                                @foreach(array_diff($selectedFreqs, ['Daily', 'Once weekly', 'Twice weekly', 'Thrice weekly', '4 times weekly', '5 times daily', 'Weekly', 'Fortnightly']) as $custom)
+                                                    @if(trim($custom) !== '')
+                                                        <option value="{{ $custom }}" selected>{{ $custom }}</option>
+                                                    @endif
+                                                @endforeach
                                             </select>
                                         </td>
                                         <td>
-                                            <div class="d-flex">
-                                                <input type="number" name="durations[]" class="form-control form-control-sm me-1" placeholder="1" min="1" value="{{ $item->duration }}">
-                                                <select name="duration_types[]" class="form-select form-select-sm" style="min-width: 70px;">
+                                            <div class="d-flex flex-column gap-1">
+                                                <input type="number" name="durations[{{ $index }}]" class="form-control form-control-sm" placeholder="1" min="1" value="{{ $item->duration }}">
+                                                <select name="duration_types[{{ $index }}]" class="form-select form-select-sm" style="min-width: 70px;">
                                                     <option value="Days" {{ $item->duration_type == 'Days' ? 'selected' : '' }}>Days</option>
                                                     <option value="Weeks" {{ $item->duration_type == 'Weeks' ? 'selected' : '' }}>Weeks</option>
                                                     <option value="Months" {{ $item->duration_type == 'Months' ? 'selected' : '' }}>Months</option>
@@ -179,15 +185,15 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <textarea name="medicine_notes[]" class="form-control form-control-sm" rows="1"
+                                            <textarea name="medicine_notes[{{ $index }}]" class="form-control form-control-sm" rows="1"
                                                 placeholder="e.g. Take with warm water">{{ $item->medicine_note }}</textarea>
                                         </td>
                                         <td>
-                                            <input type="number" name="quantities[]"
+                                            <input type="number" name="quantities[{{ $index }}]"
                                                 class="form-control form-control-sm qty-input" min="1" required
                                                 placeholder="Qty" value="{{ $item->quantity }}">
-                                            <input type="hidden" name="timings[]" value="{{ $item->timing }}">
-                                            <input type="hidden" name="instructions[]" value="{{ $item->instructions }}">
+                                            <input type="hidden" name="timings[{{ $index }}]" value="{{ $item->timing }}">
+                                            <input type="hidden" name="instructions[{{ $index }}]" value="{{ $item->instructions }}">
                                         </td>
                                         <td class="text-center">
                                             <button type="button" class="btn btn-sm btn-danger remove-btn"><i
@@ -374,7 +380,7 @@
                 let row = `
                     <tr id="row-${rowCount}">
                         <td>
-                            <select name="medicines[]" class="form-select select2-med select2-primary w-100" required>
+                            <select name="medicines[${rowCount}]" class="form-select select2-med select2-primary w-100" required>
                                 <option value="">Search...</option>
                                 @foreach($medicines as $med)
                                     <option value="{{ $med->id }}" data-price="{{ $med->price }}" data-stock="{{ $med->stock }}">{{ $med->name }} (Stock: {{ $med->stock }}) - ₹{{ $med->price }}</option>
@@ -382,7 +388,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="alternate_medicines[]" class="form-select select2-med select2-alt w-100">
+                            <select name="alternate_medicines[${rowCount}]" class="form-select select2-med select2-alt w-100">
                                 <option value="">None</option>
                                 @foreach($medicines as $med)
                                     <option value="{{ $med->id }}">{{ $med->name }}</option>
@@ -390,8 +396,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="times[]" class="form-select select2-custom form-select-sm w-100">
-                                <option value="">Select...</option>
+                            <select name="times[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
                                 <option value="Morning">Morning</option>
                                 <option value="Afternoon">Afternoon</option>
                                 <option value="Evening">Evening</option>
@@ -399,8 +404,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="whens[]" class="form-select select2-custom form-select-sm w-100">
-                                <option value="">Select...</option>
+                            <select name="whens[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
                                 <option value="Before Food">Before Food</option>
                                 <option value="After Food">After Food</option>
                                 <option value="Empty stomach">Empty stomach</option>
@@ -413,8 +417,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="frequencies[]" class="form-select select2-custom form-select-sm w-100">
-                                <option value="">Select...</option>
+                            <select name="frequencies[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
                                 <option value="Daily">Daily</option>
                                 <option value="Once weekly">Once weekly</option>
                                 <option value="Twice weekly">Twice weekly</option>
@@ -426,9 +429,9 @@
                             </select>
                         </td>
                         <td>
-                            <div class="d-flex">
-                                <input type="number" name="durations[]" class="form-control form-control-sm me-1" placeholder="1" min="1">
-                                <select name="duration_types[]" class="form-select form-select-sm" style="min-width: 70px;">
+                            <div class="d-flex flex-column gap-1">
+                                <input type="number" name="durations[${rowCount}]" class="form-control form-control-sm" placeholder="1" min="1">
+                                <select name="duration_types[${rowCount}]" class="form-select form-select-sm" style="min-width: 70px;">
                                     <option value="Days">Days</option>
                                     <option value="Weeks">Weeks</option>
                                     <option value="Months">Months</option>
@@ -436,12 +439,12 @@
                             </div>
                         </td>
                         <td>
-                            <textarea name="medicine_notes[]" class="form-control form-control-sm" rows="1" placeholder="e.g. Take with warm water"></textarea>
+                            <textarea name="medicine_notes[${rowCount}]" class="form-control form-control-sm" rows="1" placeholder="e.g. Take with warm water"></textarea>
                         </td>
                         <td>
-                            <input type="number" name="quantities[]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty">
-                            <input type="hidden" name="timings[]" value="">
-                            <input type="hidden" name="instructions[]" value="">
+                            <input type="number" name="quantities[${rowCount}]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty">
+                            <input type="hidden" name="timings[${rowCount}]" value="">
+                            <input type="hidden" name="instructions[${rowCount}]" value="">
                         </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-sm btn-danger remove-btn"><i class="fas fa-times"></i></button>
@@ -571,7 +574,7 @@
                                 let row = `
                                     <tr id="row-${rowCount}">
                                         <td>
-                                            <select name="medicines[]" class="form-select select2-med select2-primary w-100" required>
+                                            <select name="medicines[${rowCount}]" class="form-select select2-med select2-primary w-100" required>
                                                 <option value="">Search...</option>
                                                 @foreach($medicines as $med)
                                                     <option value="{{ $med->id }}" data-price="{{ $med->price }}" data-stock="{{ $med->stock }}">{{ $med->name }} (Stock: {{ $med->stock }}) - ₹{{ $med->price }}</option>
@@ -579,7 +582,7 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="alternate_medicines[]" class="form-select select2-med select2-alt w-100">
+                                            <select name="alternate_medicines[${rowCount}]" class="form-select select2-med select2-alt w-100">
                                                 <option value="">None</option>
                                                 @foreach($medicines as $med)
                                                     <option value="{{ $med->id }}">{{ $med->name }}</option>
@@ -587,59 +590,56 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="times[]" class="form-select select2-custom form-select-sm w-100">
-                                                <option value="" ${!item.time ? 'selected' : ''}>Select...</option>
-                                                <option value="Morning" ${item.time == 'Morning' ? 'selected' : ''}>Morning</option>
-                                                <option value="Afternoon" ${item.time == 'Afternoon' ? 'selected' : ''}>Afternoon</option>
-                                                <option value="Evening" ${item.time == 'Evening' ? 'selected' : ''}>Evening</option>
-                                                <option value="Night" ${item.time == 'Night' ? 'selected' : ''}>Night</option>
-                                                ${item.time && !['Morning', 'Afternoon', 'Evening', 'Night'].includes(item.time) ? `<option value="${item.time}" selected>${item.time}</option>` : ''}
+                                            <select name="times[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
+                                                <option value="Morning" ${item.time && item.time.includes('Morning') ? 'selected' : ''}>Morning</option>
+                                                <option value="Afternoon" ${item.time && item.time.includes('Afternoon') ? 'selected' : ''}>Afternoon</option>
+                                                <option value="Evening" ${item.time && item.time.includes('Evening') ? 'selected' : ''}>Evening</option>
+                                                <option value="Night" ${item.time && item.time.includes('Night') ? 'selected' : ''}>Night</option>
+                                                ${item.time && item.time.split(',').find(t => !['Morning', 'Afternoon', 'Evening', 'Night'].includes(t.trim()) && t.trim() !== '') ? item.time.split(',').filter(t => !['Morning', 'Afternoon', 'Evening', 'Night'].includes(t.trim()) && t.trim() !== '').map(t => `<option value="${t.trim()}" selected>${t.trim()}</option>`).join('') : ''}
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="whens[]" class="form-select select2-custom form-select-sm w-100">
-                                                <option value="" ${!item.when ? 'selected' : ''}>Select...</option>
-                                                <option value="Before Food" ${item.when == 'Before Food' ? 'selected' : ''}>Before Food</option>
-                                                <option value="After Food" ${item.when == 'After Food' ? 'selected' : ''}>After Food</option>
-                                                <option value="Empty stomach" ${item.when == 'Empty stomach' ? 'selected' : ''}>Empty stomach</option>
-                                                <option value="With Food" ${item.when == 'With Food' ? 'selected' : ''}>With Food</option>
-                                                <option value="At bedtime" ${item.when == 'At bedtime' ? 'selected' : ''}>At bedtime</option>
-                                                <option value="After bath" ${item.when == 'After bath' ? 'selected' : ''}>After bath</option>
-                                                <option value="After Facewash" ${item.when == 'After Facewash' ? 'selected' : ''}>After Facewash</option>
-                                                <option value="Overnight" ${item.when == 'Overnight' ? 'selected' : ''}>Overnight</option>
-                                                <option value="After mouthwash" ${item.when == 'After mouthwash' ? 'selected' : ''}>After mouthwash</option>
-                                                ${item.when && !['Before Food', 'After Food', 'Empty stomach', 'With Food', 'At bedtime', 'After bath', 'After Facewash', 'Overnight', 'After mouthwash'].includes(item.when) ? `<option value="${item.when}" selected>${item.when}</option>` : ''}
+                                            <select name="whens[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
+                                                <option value="Before Food" ${item.when && item.when.includes('Before Food') ? 'selected' : ''}>Before Food</option>
+                                                <option value="After Food" ${item.when && item.when.includes('After Food') ? 'selected' : ''}>After Food</option>
+                                                <option value="Empty stomach" ${item.when && item.when.includes('Empty stomach') ? 'selected' : ''}>Empty stomach</option>
+                                                <option value="With Food" ${item.when && item.when.includes('With Food') ? 'selected' : ''}>With Food</option>
+                                                <option value="At bedtime" ${item.when && item.when.includes('At bedtime') ? 'selected' : ''}>At bedtime</option>
+                                                <option value="After bath" ${item.when && item.when.includes('After bath') ? 'selected' : ''}>After bath</option>
+                                                <option value="After Facewash" ${item.when && item.when.includes('After Facewash') ? 'selected' : ''}>After Facewash</option>
+                                                <option value="Overnight" ${item.when && item.when.includes('Overnight') ? 'selected' : ''}>Overnight</option>
+                                                <option value="After mouthwash" ${item.when && item.when.includes('After mouthwash') ? 'selected' : ''}>After mouthwash</option>
+                                                ${item.when && item.when.split(',').find(t => !['Before Food', 'After Food', 'Empty stomach', 'With Food', 'At bedtime', 'After bath', 'After Facewash', 'Overnight', 'After mouthwash'].includes(t.trim()) && t.trim() !== '') ? item.when.split(',').filter(t => !['Before Food', 'After Food', 'Empty stomach', 'With Food', 'At bedtime', 'After bath', 'After Facewash', 'Overnight', 'After mouthwash'].includes(t.trim()) && t.trim() !== '').map(t => `<option value="${t.trim()}" selected>${t.trim()}</option>`).join('') : ''}
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="frequencies[]" class="form-select select2-custom form-select-sm w-100">
-                                                <option value="" ${!item.frequency ? 'selected' : ''}>Select...</option>
-                                                <option value="Daily" ${item.frequency == 'Daily' ? 'selected' : ''}>Daily</option>
-                                                <option value="Once weekly" ${item.frequency == 'Once weekly' ? 'selected' : ''}>Once weekly</option>
-                                                <option value="Twice weekly" ${item.frequency == 'Twice weekly' ? 'selected' : ''}>Twice weekly</option>
-                                                <option value="Thrice weekly" ${item.frequency == 'Thrice weekly' ? 'selected' : ''}>Thrice weekly</option>
-                                                <option value="4 times weekly" ${item.frequency == '4 times weekly' ? 'selected' : ''}>4 times weekly</option>
-                                                <option value="5 times daily" ${item.frequency == '5 times daily' ? 'selected' : ''}>5 times daily</option>
-                                                <option value="Weekly" ${item.frequency == 'Weekly' ? 'selected' : ''}>Weekly</option>
-                                                <option value="Fortnightly" ${item.frequency == 'Fortnightly' ? 'selected' : ''}>Fortnightly</option>
-                                                ${item.frequency && !['Daily', 'Once weekly', 'Twice weekly', 'Thrice weekly', '4 times weekly', '5 times daily', 'Weekly', 'Fortnightly'].includes(item.frequency) ? `<option value="${item.frequency}" selected>${item.frequency}</option>` : ''}
+                                            <select name="frequencies[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
+                                                <option value="Daily" ${item.frequency && item.frequency.includes('Daily') ? 'selected' : ''}>Daily</option>
+                                                <option value="Once weekly" ${item.frequency && item.frequency.includes('Once weekly') ? 'selected' : ''}>Once weekly</option>
+                                                <option value="Twice weekly" ${item.frequency && item.frequency.includes('Twice weekly') ? 'selected' : ''}>Twice weekly</option>
+                                                <option value="Thrice weekly" ${item.frequency && item.frequency.includes('Thrice weekly') ? 'selected' : ''}>Thrice weekly</option>
+                                                <option value="4 times weekly" ${item.frequency && item.frequency.includes('4 times weekly') ? 'selected' : ''}>4 times weekly</option>
+                                                <option value="5 times daily" ${item.frequency && item.frequency.includes('5 times daily') ? 'selected' : ''}>5 times daily</option>
+                                                <option value="Weekly" ${item.frequency && item.frequency.includes('Weekly') ? 'selected' : ''}>Weekly</option>
+                                                <option value="Fortnightly" ${item.frequency && item.frequency.includes('Fortnightly') ? 'selected' : ''}>Fortnightly</option>
+                                                ${item.frequency && item.frequency.split(',').find(t => !['Daily', 'Once weekly', 'Twice weekly', 'Thrice weekly', '4 times weekly', '5 times daily', 'Weekly', 'Fortnightly'].includes(t.trim()) && t.trim() !== '') ? item.frequency.split(',').filter(t => !['Daily', 'Once weekly', 'Twice weekly', 'Thrice weekly', '4 times weekly', '5 times daily', 'Weekly', 'Fortnightly'].includes(t.trim()) && t.trim() !== '').map(t => `<option value="${t.trim()}" selected>${t.trim()}</option>`).join('') : ''}
                                             </select>
                                         </td>
                                         <td>
-                                            <div class="d-flex">
-                                                <input type="number" name="durations[]" class="form-control form-control-sm me-1" placeholder="1" min="1" value="${item.duration || ''}">
-                                                <select name="duration_types[]" class="form-select form-select-sm" style="min-width: 70px;">
+                                            <div class="d-flex flex-column gap-1">
+                                                <input type="number" name="durations[${rowCount}]" class="form-control form-control-sm" placeholder="1" min="1" value="${item.duration || ''}">
+                                                <select name="duration_types[${rowCount}]" class="form-select form-select-sm" style="min-width: 70px;">
                                                     <option value="Days" ${item.duration_type == 'Days' ? 'selected' : ''}>Days</option>
                                                     <option value="Weeks" ${item.duration_type == 'Weeks' ? 'selected' : ''}>Weeks</option>
                                                     <option value="Months" ${item.duration_type == 'Months' ? 'selected' : ''}>Months</option>
                                                 </select>
                                             </div>
                                         </td>
-                                        <td><textarea name="medicine_notes[]" class="form-control form-control-sm" rows="1">${item.medicine_note || ''}</textarea></td>
+                                        <td><textarea name="medicine_notes[${rowCount}]" class="form-control form-control-sm" rows="1">${item.medicine_note || ''}</textarea></td>
                                         <td>
-                                            <input type="number" name="quantities[]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty" value="${item.quantity}">
-                                            <input type="hidden" name="timings[]" value="${item.timing || ''}">
-                                            <input type="hidden" name="instructions[]" value="${item.instructions || ''}">
+                                            <input type="number" name="quantities[${rowCount}]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty" value="${item.quantity}">
+                                            <input type="hidden" name="timings[${rowCount}]" value="${item.timing || ''}">
+                                            <input type="hidden" name="instructions[${rowCount}]" value="${item.instructions || ''}">
                                         </td>
                                         <td class="text-center"><button type="button" class="btn btn-sm btn-danger remove-btn"><i class="fas fa-times"></i></button></td>
                                     </tr>
@@ -647,8 +647,8 @@
                                 
                                 $('#medicineList').append(row);
                                 
-                                $(`#row-${rowCount} select[name="medicines[]"]`).val(item.medicine_id).select2({ theme: 'bootstrap-5' });
-                                $(`#row-${rowCount} select[name="alternate_medicines[]"]`).val(item.alternate_medicine_id || '').select2({ theme: 'bootstrap-5' });
+                                $(`#row-${rowCount} select[name="medicines[${rowCount}]"]`).val(item.medicine_id).select2({ theme: 'bootstrap-5' });
+                                $(`#row-${rowCount} select[name="alternate_medicines[${rowCount}]"]`).val(item.alternate_medicine_id || '').select2({ theme: 'bootstrap-5' });
                                 $(`#row-${rowCount} .select2-timing`).select2({ theme: 'bootstrap-5', tags: true });
                                 $(`#row-${rowCount} .select2-custom`).select2({ theme: 'bootstrap-5', tags: true });
                             });

@@ -113,7 +113,7 @@
                 let row = `
                     <tr id="row-${rowCount}">
                         <td>
-                            <select name="medicines[]" class="form-select select2-med select2-primary w-100" required>
+                            <select name="medicines[${rowCount}]" class="form-select select2-med select2-primary w-100" required>
                                 <option value="">Search...</option>
                                 @foreach($medicines as $med)
                                     <option value="{{ $med->id }}">{{ $med->name }}</option>
@@ -121,7 +121,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="alternate_medicines[]" class="form-select select2-med select2-alt w-100">
+                            <select name="alternate_medicines[${rowCount}]" class="form-select select2-med select2-alt w-100">
                                 <option value="">None</option>
                                 @foreach($medicines as $med)
                                     <option value="{{ $med->id }}">{{ $med->name }}</option>
@@ -129,8 +129,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="times[]" class="form-select select2-custom form-select-sm w-100">
-                                <option value="">Select...</option>
+                            <select name="times[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
                                 <option value="Morning">Morning</option>
                                 <option value="Afternoon">Afternoon</option>
                                 <option value="Evening">Evening</option>
@@ -138,8 +137,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="whens[]" class="form-select select2-custom form-select-sm w-100">
-                                <option value="">Select...</option>
+                            <select name="whens[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
                                 <option value="Before Food">Before Food</option>
                                 <option value="After Food">After Food</option>
                                 <option value="Empty stomach">Empty stomach</option>
@@ -152,8 +150,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="frequencies[]" class="form-select select2-custom form-select-sm w-100">
-                                <option value="">Select...</option>
+                            <select name="frequencies[${rowCount}][]" class="form-select select2-custom form-select-sm w-100" multiple="multiple" data-placeholder="Select...">
                                 <option value="Daily">Daily</option>
                                 <option value="Once weekly">Once weekly</option>
                                 <option value="Twice weekly">Twice weekly</option>
@@ -165,9 +162,9 @@
                             </select>
                         </td>
                         <td>
-                            <div class="d-flex">
-                                <input type="number" name="durations[]" class="form-control form-control-sm me-1" placeholder="1" min="1">
-                                <select name="duration_types[]" class="form-select form-select-sm" style="min-width: 70px;">
+                            <div class="d-flex flex-column gap-1">
+                                <input type="number" name="durations[${rowCount}]" class="form-control form-control-sm" placeholder="1" min="1">
+                                <select name="duration_types[${rowCount}]" class="form-select form-select-sm" style="min-width: 70px;">
                                     <option value="Days">Days</option>
                                     <option value="Weeks">Weeks</option>
                                     <option value="Months">Months</option>
@@ -175,12 +172,12 @@
                             </div>
                         </td>
                         <td>
-                            <textarea name="medicine_notes[]" class="form-control form-control-sm" rows="1" placeholder="e.g. Take with warm water"></textarea>
+                            <textarea name="medicine_notes[${rowCount}]" class="form-control form-control-sm" rows="1" placeholder="e.g. Take with warm water"></textarea>
                         </td>
                         <td>
-                            <input type="number" name="quantities[]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty">
-                            <input type="hidden" name="timings[]" value="">
-                            <input type="hidden" name="instructions[]" value="">
+                            <input type="number" name="quantities[${rowCount}]" class="form-control form-control-sm qty-input" min="1" required placeholder="Qty">
+                            <input type="hidden" name="timings[${rowCount}]" value="">
+                            <input type="hidden" name="instructions[${rowCount}]" value="">
                         </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-sm btn-danger remove-btn"><i class="fas fa-times"></i></button>
