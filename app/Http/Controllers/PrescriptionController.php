@@ -91,7 +91,7 @@ class PrescriptionController extends Controller
                 PrescriptionItem::create([
                     'prescription_id' => $prescription->id,
                     'medicine_id' => $medicine_id,
-                    'alternate_medicine_id' => $request->alternate_medicines[$key] ?? null,
+                    'alternate_medicine_id' => isset($request->alternate_medicines[$key]) ? (is_array($request->alternate_medicines[$key]) ? implode(',', $request->alternate_medicines[$key]) : $request->alternate_medicines[$key]) : null,
                     'time' => isset($request->times[$key]) ? (is_array($request->times[$key]) ? implode(', ', $request->times[$key]) : $request->times[$key]) : null,
                     'when' => isset($request->whens[$key]) ? (is_array($request->whens[$key]) ? implode(', ', $request->whens[$key]) : $request->whens[$key]) : null,
                     'frequency' => isset($request->frequencies[$key]) ? (is_array($request->frequencies[$key]) ? implode(', ', $request->frequencies[$key]) : $request->frequencies[$key]) : null,
@@ -251,7 +251,7 @@ class PrescriptionController extends Controller
                 PrescriptionItem::create([
                     'prescription_id' => $prescription->id,
                     'medicine_id' => $medicine_id,
-                    'alternate_medicine_id' => $request->alternate_medicines[$key] ?? null,
+                    'alternate_medicine_id' => isset($request->alternate_medicines[$key]) ? (is_array($request->alternate_medicines[$key]) ? implode(',', $request->alternate_medicines[$key]) : $request->alternate_medicines[$key]) : null,
                     'time' => isset($request->times[$key]) ? (is_array($request->times[$key]) ? implode(', ', $request->times[$key]) : $request->times[$key]) : null,
                     'when' => isset($request->whens[$key]) ? (is_array($request->whens[$key]) ? implode(', ', $request->whens[$key]) : $request->whens[$key]) : null,
                     'frequency' => isset($request->frequencies[$key]) ? (is_array($request->frequencies[$key]) ? implode(', ', $request->frequencies[$key]) : $request->frequencies[$key]) : null,

@@ -338,7 +338,7 @@
                         <td style="border-bottom: none;">{{ $item->frequency ?: '-' }}</td>
                         <td style="border-bottom: none;">{{ $item->duration ? $item->duration . ' ' . $item->duration_type : '-' }}</td>
                         <td style="border-bottom: none;">{{ $item->quantity }}</td>
-                        <td style="border-bottom: none;">{{ $item->alternateMedicine ? $item->alternateMedicine->name : '-' }}</td>
+                        <td style="border-bottom: none;">{{ $item->alternate_medicines->pluck('name')->implode(', ') ?: '-' }}</td>
                     </tr>
                     <tr class="instruction-row">
                         <td colspan="8">

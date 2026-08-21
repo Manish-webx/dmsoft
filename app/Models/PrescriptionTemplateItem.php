@@ -35,4 +35,11 @@ class PrescriptionTemplateItem extends Model
     {
         return $this->belongsTo(Medicine::class, 'alternate_medicine_id');
     }
+
+    public function getAlternateMedicinesAttribute()
+    {
+        if (!$this->alternate_medicine_id) return collect();
+        $ids = explode(',', $this->alternate_medicine_id);
+        return Medicine::whereIn('id', $ids)->get();
+    }
 }

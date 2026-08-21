@@ -113,11 +113,11 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="alternate_medicines[{{ $index }}]"
-                                                class="form-select select2-med select2-alt w-100">
-                                                <option value="">None</option>
+                                            @php $selectedAlts = $item->alternate_medicine_id ? explode(',', $item->alternate_medicine_id) : []; @endphp
+                                            <select name="alternate_medicines[{{ $index }}][]"
+                                                class="form-select select2-med select2-alt w-100" multiple="multiple" data-placeholder="Select...">
                                                 @foreach($medicines as $med)
-                                                    <option value="{{ $med->id }}" {{ $item->alternate_medicine_id == $med->id ? 'selected' : '' }}>
+                                                    <option value="{{ $med->id }}" {{ in_array($med->id, $selectedAlts) ? 'selected' : '' }}>
                                                         {{ $med->name }}
                                                     </option>
                                                 @endforeach
@@ -388,8 +388,7 @@
                             </select>
                         </td>
                         <td>
-                            <select name="alternate_medicines[${rowCount}]" class="form-select select2-med select2-alt w-100">
-                                <option value="">None</option>
+                            <select name="alternate_medicines[${rowCount}][]" class="form-select select2-med select2-alt w-100" multiple="multiple" data-placeholder="Select...">
                                 @foreach($medicines as $med)
                                     <option value="{{ $med->id }}">{{ $med->name }}</option>
                                 @endforeach
@@ -582,10 +581,9 @@
                                             </select>
                                         </td>
                                         <td>
-                                            <select name="alternate_medicines[${rowCount}]" class="form-select select2-med select2-alt w-100">
-                                                <option value="">None</option>
+                                            <select name="alternate_medicines[${rowCount}][]" class="form-select select2-med select2-alt w-100" multiple="multiple" data-placeholder="Select...">
                                                 @foreach($medicines as $med)
-                                                    <option value="{{ $med->id }}">{{ $med->name }}</option>
+                                                    <option value="{{ $med->id }}" ${item.alternate_medicine_id && item.alternate_medicine_id.split(',').includes(String('{{ $med->id }}')) ? 'selected' : ''}>{{ $med->name }}</option>
                                                 @endforeach
                                             </select>
                                         </td>
@@ -648,7 +646,7 @@
                                 $('#medicineList').append(row);
                                 
                                 $(`#row-${rowCount} select[name="medicines[${rowCount}]"]`).val(item.medicine_id).select2({ theme: 'bootstrap-5' });
-                                $(`#row-${rowCount} select[name="alternate_medicines[${rowCount}]"]`).val(item.alternate_medicine_id || '').select2({ theme: 'bootstrap-5' });
+                                $(`#row-${rowCount} select[name="alternate_medicines[${rowCount}][]"]`).select2({ theme: 'bootstrap-5' });
                                 $(`#row-${rowCount} .select2-timing`).select2({ theme: 'bootstrap-5', tags: true });
                                 $(`#row-${rowCount} .select2-custom`).select2({ theme: 'bootstrap-5', tags: true });
                             });
