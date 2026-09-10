@@ -285,6 +285,13 @@
             </li>
 
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('leads.*') ? 'active' : '' }}"
+                    href="{{ route('leads.index') }}">
+                    <i class="fas fa-funnel-dollar"></i> Leads
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('patients.*') ? 'active' : '' }}"
                     href="{{ route('patients.index') }}">
                     <i class="fas fa-users"></i> Patients

@@ -9,6 +9,7 @@ Route::get('/', function () {
     return redirect()->route('login');
 });
 
+use App\Http\Controllers\LeadController;
 use App\Http\Controllers\PatientController;
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\MedicineController;
@@ -18,6 +19,10 @@ use App\Http\Controllers\ProblemController;
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/set-location', [App\Http\Controllers\LocationController::class, 'setLocation'])->name('set-location');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::post('leads/{lead}/restore', [LeadController::class, 'restore'])->name('leads.restore');
+    Route::delete('leads/{lead}/force-delete', [LeadController::class, 'forceDelete'])->name('leads.force-delete');
+    Route::resource('leads', LeadController::class);
 
     Route::post('patients/{patient}/restore', [PatientController::class, 'restore'])->name('patients.restore');
     Route::delete('patients/{patient}/force-delete', [PatientController::class, 'forceDelete'])->name('patients.force-delete');
