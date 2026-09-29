@@ -17,12 +17,12 @@ class PrescriptionItem extends Model
 
     public function medicine()
     {
-        return $this->belongsTo(Medicine::class);
+        return $this->belongsTo(Medicine::class)->withTrashed();
     }
 
     public function alternateMedicine()
     {
-        return $this->belongsTo(Medicine::class, 'alternate_medicine_id');
+        return $this->belongsTo(Medicine::class, 'alternate_medicine_id')->withTrashed();
     }
 
     public function getAlternateMedicinesAttribute()

@@ -354,14 +354,14 @@ class PrescriptionController extends Controller
 
     public function downloadBillingPdf($id)
     {
-        $prescription = Prescription::with(['patient', 'doctor', 'revenue'])->findOrFail($id);
+        $prescription = Prescription::with(['patient', 'doctor', 'items.medicine', 'revenue'])->findOrFail($id);
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('prescriptions.billing_pdf', compact('prescription'));
         return $pdf->download('Bill-'.$prescription->id.'.pdf');
     }
 
     public function viewBillingPdf($id)
     {
-        $prescription = Prescription::with(['patient', 'doctor', 'revenue'])->findOrFail($id);
+        $prescription = Prescription::with(['patient', 'doctor', 'items.medicine', 'revenue'])->findOrFail($id);
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('prescriptions.billing_pdf', compact('prescription'));
         return $pdf->stream('Bill-'.$prescription->id.'.pdf');
     }
