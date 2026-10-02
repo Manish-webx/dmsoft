@@ -172,8 +172,22 @@
         <select class="form-select primary-med" style="width: 100%;">
             <option value="">Select Medicine...</option>
             @foreach($medicines as $med)
-                <option value="{{ $med->id }}" data-price="{{ $med->price }}" data-stock="{{ $med->stock }}">{{ $med->name }}
-                    (Stock: {{ $med->stock }}) - ₹{{ $med->price }}</option>
+                @php
+                    $stripQty = ($med->items_per_strip && (int)$med->items_per_strip > 1) ? (int)$med->items_per_strip : 1;
+                    $unitPrice = $stripQty > 1 ? round((float)$med->price / $stripQty, 2) : (float)$med->price;
+                    $label = $med->name . ' (Stock: ' . $med->stock . ')';
+                    if ($stripQty > 1) {
+                        $label .= ' - ₹' . number_format((float)$med->price, 2) . '/strip (₹' . number_format($unitPrice, 2) . '/tab)';
+                    } else {
+                        $label .= ' - ₹' . number_format((float)$med->price, 2);
+                    }
+                @endphp
+                <option value="{{ $med->id }}" 
+                    data-price="{{ $med->price }}" 
+                    data-unit-price="{{ $unitPrice }}" 
+                    data-items-per-strip="{{ $stripQty }}" 
+                    data-unit="{{ $med->unit }}" 
+                    data-stock="{{ $med->stock }}">{{ $label }}</option>
             @endforeach
         </select>
     </div>
@@ -239,8 +253,13 @@
                 $('.qty-input').each(function () {
                     let qty = parseFloat($(this).val()) || 0;
                     let tr = $(this).closest('tr');
-                    let price = parseFloat(tr.find('.select2-med option:selected').data('price')) || 0;
-                    subtotal += (qty * price);
+                    let sel = tr.find('.select2-primary option:selected, .select2-med option:selected').filter('[value!=""]');
+                    let unitPrice = parseFloat(sel.data('unit-price'));
+                    let rawPrice = parseFloat(sel.data('price')) || 0;
+                    let itemsPerStrip = parseInt(sel.data('items-per-strip')) || 1;
+
+                    let rate = (!isNaN(unitPrice) && unitPrice > 0) ? unitPrice : (itemsPerStrip > 1 ? (rawPrice / itemsPerStrip) : rawPrice);
+                    subtotal += (qty * rate);
                 });
                 $('#subtotal').val(subtotal.toFixed(2));
 
@@ -254,7 +273,7 @@
                     finalAmount = subtotal - discountValue;
                 }
 
-                $('#subtotal').val(subtotal.toFixed(2));
+                finalAmount = Math.max(0, finalAmount);
                 $('#final_amount').val(finalAmount.toFixed(2));
 
                 let received = $('#received_amount').val();
@@ -265,6 +284,10 @@
                     $('#due_amount').val(due.toFixed(2));
                 }
             }
+
+            $(document).on('input', '.qty-input', calculateRevenue);
+            $(document).on('change', '.select2-primary, .select2-med', calculateRevenue);
+            $('#discount_type, #discount_value, #received_amount').on('input change', calculateRevenue);
 
             $('#addMedicineBtn').click(function () {
                 rowCount++;
@@ -286,7 +309,22 @@
                             <select name="medicines[${rowCount}]" class="form-select select2-med select2-primary w-100" required>
                                 <option value="">Search...</option>
                                 @foreach($medicines as $med)
-                                    <option value="{{ $med->id }}" data-price="{{ $med->price }}" data-stock="{{ $med->stock }}">{{ $med->name }} (Stock: {{ $med->stock }}) - ₹{{ $med->price }}</option>
+                                    @php
+                                        $stripQty = ($med->items_per_strip && (int)$med->items_per_strip > 1) ? (int)$med->items_per_strip : 1;
+                                        $unitPrice = $stripQty > 1 ? round((float)$med->price / $stripQty, 2) : (float)$med->price;
+                                        $label = $med->name . ' (Stock: ' . $med->stock . ')';
+                                        if ($stripQty > 1) {
+                                            $label .= ' - ₹' . number_format((float)$med->price, 2) . '/strip (₹' . number_format($unitPrice, 2) . '/tab)';
+                                        } else {
+                                            $label .= ' - ₹' . number_format((float)$med->price, 2);
+                                        }
+                                    @endphp
+                                    <option value="{{ $med->id }}" 
+                                        data-price="{{ $med->price }}" 
+                                        data-unit-price="{{ $unitPrice }}" 
+                                        data-items-per-strip="{{ $stripQty }}" 
+                                        data-unit="{{ $med->unit }}" 
+                                        data-stock="{{ $med->stock }}">{{ $label }}</option>
                                 @endforeach
                             </select>
                         </td>
@@ -478,7 +516,22 @@
                                             <select name="medicines[${rowCount}]" class="form-select select2-med select2-primary w-100" required>
                                                 <option value="">Search...</option>
                                                 @foreach($medicines as $med)
-                                                    <option value="{{ $med->id }}" data-price="{{ $med->price }}" data-stock="{{ $med->stock }}">{{ $med->name }} (Stock: {{ $med->stock }}) - ₹{{ $med->price }}</option>
+                                                    @php
+                                                        $stripQty = ($med->items_per_strip && (int)$med->items_per_strip > 1) ? (int)$med->items_per_strip : 1;
+                                                        $unitPrice = $stripQty > 1 ? round((float)$med->price / $stripQty, 2) : (float)$med->price;
+                                                        $label = $med->name . ' (Stock: ' . $med->stock . ')';
+                                                        if ($stripQty > 1) {
+                                                            $label .= ' - ₹' . number_format((float)$med->price, 2) . '/strip (₹' . number_format($unitPrice, 2) . '/tab)';
+                                                        } else {
+                                                            $label .= ' - ₹' . number_format((float)$med->price, 2);
+                                                        }
+                                                    @endphp
+                                                    <option value="{{ $med->id }}" 
+                                                        data-price="{{ $med->price }}" 
+                                                        data-unit-price="{{ $unitPrice }}" 
+                                                        data-items-per-strip="{{ $stripQty }}" 
+                                                        data-unit="{{ $med->unit }}" 
+                                                        data-stock="{{ $med->stock }}">{{ $label }}</option>
                                                 @endforeach
                                             </select>
                                         </td>

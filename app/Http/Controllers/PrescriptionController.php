@@ -78,10 +78,13 @@ class PrescriptionController extends Controller
             $subtotal = 0;
 
             foreach ($request->medicines as $key => $medicine_id) {
-                $quantity = $request->quantities[$key];
+                $quantity = (float)$request->quantities[$key];
                 $medicine = Medicine::findOrFail($medicine_id);
                 
-                $subtotal += ($medicine->price * $quantity);
+                $stripQty = ($medicine->items_per_strip && (int)$medicine->items_per_strip > 1) ? (int)$medicine->items_per_strip : 1;
+                $unitPrice = $stripQty > 1 ? ((float)$medicine->price / $stripQty) : (float)$medicine->price;
+
+                $subtotal += ($unitPrice * $quantity);
 
                 if ($medicine->stock < $quantity) {
                     throw new \Exception("Insufficient stock for {$medicine->name}. Available: {$medicine->stock}");
@@ -238,10 +241,13 @@ class PrescriptionController extends Controller
             $subtotal = 0;
 
             foreach ($request->medicines as $key => $medicine_id) {
-                $quantity = $request->quantities[$key];
+                $quantity = (float)$request->quantities[$key];
                 $medicine = Medicine::findOrFail($medicine_id);
                 
-                $subtotal += ($medicine->price * $quantity);
+                $stripQty = ($medicine->items_per_strip && (int)$medicine->items_per_strip > 1) ? (int)$medicine->items_per_strip : 1;
+                $unitPrice = $stripQty > 1 ? ((float)$medicine->price / $stripQty) : (float)$medicine->price;
+
+                $subtotal += ($unitPrice * $quantity);
 
                 if ($medicine->stock < $quantity) {
                     throw new \Exception("Insufficient stock for {$medicine->name}. Available: {$medicine->stock}");

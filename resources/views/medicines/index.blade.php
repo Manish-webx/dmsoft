@@ -22,11 +22,12 @@
                 <tr>
                     <th>ID</th>
                     <th>Name</th>
-                    <th>Brand (Company Name)</th>
+                    <th>Brand (Company)</th>
                     <th>Stock</th>
                     <th>Unit</th>
                     <th>Items/Strip</th>
-                    <th>Price</th>
+                    <th>Strip Price</th>
+                    <th>Rate / Tablet</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -48,25 +49,47 @@
                 <div class="modal-body">
                     <input type="hidden" id="medicine_id" name="id">
                     <div class="mb-3">
-                        <label>Medicine Name *</label>
-                        <input type="text" name="name" id="name" class="form-control" required>
+                        <label class="form-label fw-bold">Medicine Name *</label>
+                        <input type="text" name="name" id="name" class="form-control" placeholder="e.g. Paracetamol 650mg" required>
                     </div>
                     <div class="mb-3">
-                        <label>Brand (Company Name)</label>
-                        <input type="text" name="brand" id="brand" class="form-control">
+                        <label class="form-label">Brand (Company Name)</label>
+                        <input type="text" name="brand" id="brand" class="form-control" placeholder="e.g. Dolo / Cipla">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Unit Type</label>
+                            <input type="text" name="unit" id="unit" class="form-control" list="unitOptions" placeholder="e.g. Tablets, Syrup">
+                            <datalist id="unitOptions">
+                                <option value="Tablets">
+                                <option value="Capsules">
+                                <option value="Syrup">
+                                <option value="Ointment / Cream">
+                                <option value="Lotion">
+                                <option value="Bottle">
+                                <option value="Tube">
+                                <option value="Drops">
+                                <option value="Injection">
+                            </datalist>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Tablets per Strip</label>
+                            <input type="number" name="items_per_strip" id="items_per_strip" class="form-control" min="1" placeholder="e.g. 10 or 6">
+                            <small class="text-muted" style="font-size: 11px;">Leave empty or 1 if not in strip</small>
+                        </div>
                     </div>
                     <div class="mb-3">
-                        <label>Unit (e.g., Tablets, ml, Bottle)</label>
-                        <input type="text" name="unit" id="unit" class="form-control">
+                        <label class="form-label fw-bold">Strip / Full Pack Price (₹) *</label>
+                        <input type="number" step="0.01" name="price" id="price" class="form-control" placeholder="0.00">
                     </div>
-                    <div class="mb-3">
-                        <label>Items per Strip (for Tablets/Capsules)</label>
-                        <input type="number" name="items_per_strip" id="items_per_strip" class="form-control" min="1">
+                    
+                    <div class="p-3 mb-3 bg-light border rounded" id="perTabletPreviewBox">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-muted"><i class="fas fa-calculator me-1"></i> Calculated Rate / Tablet:</span>
+                            <span class="badge bg-success fs-6" id="perTabletPreview">₹0.00 / tablet</span>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label>Price</label>
-                        <input type="number" step="0.01" name="price" id="price" class="form-control">
-                    </div>
+
                     <div class="mb-3 form-check">
                         <input type="checkbox" name="status" id="status" class="form-check-input" value="1" checked>
                         <label class="form-check-label">Active</label>
@@ -74,7 +97,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary" id="saveBtn">Save</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn">Save Medicine</button>
                 </div>
             </form>
         </div>
@@ -163,10 +186,27 @@
                 { 
                     data: 'items_per_strip',
                     render: function(data) {
-                        return data ? data : '-';
+                        return data && data > 1 ? `<span class="badge bg-light text-dark border">${data} / strip</span>` : '-';
                     }
                 },
-                { data: 'price' },
+                { 
+                    data: 'price',
+                    render: function(data) {
+                        return '₹' + parseFloat(data || 0).toFixed(2);
+                    }
+                },
+                { 
+                    data: null,
+                    render: function(data, type, row) {
+                        let stripQty = parseInt(row.items_per_strip) || 1;
+                        let price = parseFloat(row.price) || 0;
+                        if (stripQty > 1 && price > 0) {
+                            let perTab = price / stripQty;
+                            return `<strong class="text-success">₹${perTab.toFixed(2)}</strong> <small class="text-muted">/ tab</small>`;
+                        }
+                        return `₹${price.toFixed(2)}`;
+                    }
+                },
                 { 
                     data: 'status',
                     render: function(data) {
@@ -195,6 +235,27 @@
             ]
         });
 
+        function updateModalPricePreview() {
+            let price = parseFloat($('#price').val()) || 0;
+            let itemsPerStrip = parseInt($('#items_per_strip').val()) || 1;
+            
+            if (itemsPerStrip > 1 && price > 0) {
+                let perItem = (price / itemsPerStrip).toFixed(2);
+                $('#perTabletPreview').text(`₹${perItem} / tablet`);
+                $('#perTabletPreviewBox').show();
+            } else if (price > 0) {
+                $('#perTabletPreview').text(`₹${price.toFixed(2)} / unit`);
+                $('#perTabletPreviewBox').show();
+            } else {
+                $('#perTabletPreview').text('₹0.00');
+                $('#perTabletPreviewBox').hide();
+            }
+        }
+
+        $('#price, #items_per_strip').on('input keyup change', function() {
+            updateModalPricePreview();
+        });
+
         $('#medicineForm').submit(function(e) {
             e.preventDefault();
             $('#saveBtn').prop('disabled', true).text('Saving...');
@@ -207,10 +268,10 @@
                     $('#medicineModal').modal('hide');
                     toastr.success(response.success);
                     table.ajax.reload();
-                    $('#saveBtn').prop('disabled', false).text('Save');
+                    $('#saveBtn').prop('disabled', false).text('Save Medicine');
                 },
                 error: function(xhr) {
-                    $('#saveBtn').prop('disabled', false).text('Save');
+                    $('#saveBtn').prop('disabled', false).text('Save Medicine');
                     let errors = xhr.responseJSON.errors;
                     for (let key in errors) {
                         toastr.error(errors[key][0]);
@@ -277,6 +338,7 @@
         $('#medicine_id').val('');
         $('#status').prop('checked', true);
         $('#modalTitle').text('Add Medicine');
+        $('#perTabletPreviewBox').hide();
         $('#medicineModal').modal('show');
     }
 
@@ -290,6 +352,20 @@
             $('#price').val(data.price);
             $('#status').prop('checked', data.status == 1);
             $('#modalTitle').text('Edit Medicine');
+            
+            let stripQty = parseInt(data.items_per_strip) || 1;
+            let price = parseFloat(data.price) || 0;
+            if (stripQty > 1 && price > 0) {
+                let perItem = (price / stripQty).toFixed(2);
+                $('#perTabletPreview').text(`₹${perItem} / tablet`);
+                $('#perTabletPreviewBox').show();
+            } else if (price > 0) {
+                $('#perTabletPreview').text(`₹${price.toFixed(2)} / unit`);
+                $('#perTabletPreviewBox').show();
+            } else {
+                $('#perTabletPreviewBox').hide();
+            }
+
             $('#medicineModal').modal('show');
         });
     }

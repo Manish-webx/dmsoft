@@ -315,7 +315,10 @@
             $itemsSum = 0;
             if($prescription->items && count($prescription->items) > 0) {
                 foreach($prescription->items as $item) {
-                    $itemsSum += ($item->medicine?->price ?? 0) * ($item->quantity ?? 1);
+                    $med = $item->medicine;
+                    $stripQty = ($med && $med->items_per_strip && (int)$med->items_per_strip > 1) ? (int)$med->items_per_strip : 1;
+                    $unitRate = $med ? ($stripQty > 1 ? ((float)$med->price / $stripQty) : (float)$med->price) : 0;
+                    $itemsSum += $unitRate * ($item->quantity ?? 1);
                 }
             }
             $revenueSubtotal = $prescription->revenue?->subtotal ?? $itemsSum;
@@ -335,7 +338,9 @@
             <tbody>
                 @forelse($prescription->items as $item)
                     @php
-                        $rate = $item->medicine?->price ?? 0;
+                        $med = $item->medicine;
+                        $stripQty = ($med && $med->items_per_strip && (int)$med->items_per_strip > 1) ? (int)$med->items_per_strip : 1;
+                        $rate = $med ? ($stripQty > 1 ? ((float)$med->price / $stripQty) : (float)$med->price) : 0;
                         $qty = $item->quantity ?? 1;
                         $lineTotal = $rate * $qty;
 
@@ -349,9 +354,6 @@
                         <td style="text-align: center; vertical-align: top;">{{ $loop->iteration }}</td>
                         <td style="vertical-align: top;">
                             <span class="item-name">{{ $item->medicine?->name ?? 'Medicine #' . $item->medicine_id }}</span>
-                            @if($item->medicine?->brand)
-                                <span class="item-brand">({{ $item->medicine->brand }})</span>
-                            @endif
 
                             @if(count($metaParts) > 0)
                                 <div class="item-details">
@@ -368,7 +370,9 @@
                         <td style="text-align: center; vertical-align: top;">
                             {{ $qty }}
                             @if($item->medicine?->unit)
-                                <span style="font-size: 9px; color: #666;">{{ $item->medicine->unit }}</span>
+                                <span style="font-size: 9px; color: #666;">
+                                    {{ $stripQty > 1 ? 'Tabs' : $item->medicine->unit }}
+                                </span>
                             @endif
                         </td>
                         <td style="text-align: right; vertical-align: top;">{{ number_format($rate, 2) }}</td>
