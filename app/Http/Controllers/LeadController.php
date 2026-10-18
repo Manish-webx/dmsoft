@@ -10,7 +10,7 @@ class LeadController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = Lead::latest();
+            $query = Lead::orderBy('created_at', 'desc')->orderBy('id', 'desc');
             if ($request->has('trashed') && $request->trashed == '1') {
                 $query->onlyTrashed();
             }

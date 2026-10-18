@@ -153,7 +153,15 @@
                 columns: [
                     {
                         data: 'created_at',
-                        render: function (data) {
+                        render: function (data, type, row) {
+                            if (type === 'sort' || type === 'type') {
+                                if (!data) return 0;
+                                const time = new Date(data).getTime();
+                                return isNaN(time) ? 0 : time;
+                            }
+                            if (type === 'filter') {
+                                return formatDate(data);
+                            }
                             return `<span class="small text-muted fw-semibold">${formatDate(data)}</span>`;
                         }
                     },
